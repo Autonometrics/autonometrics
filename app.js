@@ -301,9 +301,12 @@ function switchView(viewId) {
 
 async function togglePremiumPlan() {
     if (!currentUser) return;
-    state.isPremium = !state.isPremium;
-    await sb.from('profiles').update({ is_premium: state.isPremium }).eq('id', currentUser.id);
-    actualizarUI();
+    if (state.isPremium) return; // Ya es PRO, no hacer nada
+
+    // Redirigir a Stripe con el ID del usuario como referencia
+    // Stripe llamará al webhook cuando el pago se complete y activará PRO automáticamente
+    const PAYMENT_LINK = 'https://buy.stripe.com/test_fZu7sN6WD7Nvcji5a0cQU00';
+    window.location.href = `${PAYMENT_LINK}?client_reference_id=${currentUser.id}`;
 }
 
 async function limpiarTransacciones() {
