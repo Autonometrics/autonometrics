@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutonoMetrics — Deja de perder dinero siendo autónomo</title>
+    <meta name="description" content="Sabe siempre cuánto debes a Hacienda, detecta ayudas que te corresponden y calcula si un proyecto te sale rentable. Gratis para autónomos en España.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#1F2937',
+                            light: '#F9FAFB',
+                            accent: '#3B82F6',
+                            success: '#10B981',
+                            danger: '#EF4444'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white text-gray-900 font-sans antialiased">
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- NAV                                         -->
+    <!-- ═══════════════════════════════════════════ -->
+    <nav class="border-b border-gray-100 sticky top-0 bg-white z-50">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="bg-brand-accent text-white font-bold text-sm w-8 h-8 rounded-lg flex items-center justify-center">AM</div>
+                <span class="font-bold text-lg tracking-tight">AutonoMetrics</span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="app.html" class="text-sm text-gray-500 hover:text-gray-800 transition font-medium">Iniciar sesión</a>
+                <a href="app.html" class="text-sm bg-brand-accent hover:bg-blue-600 text-white font-bold px-4 py-2 rounded-lg transition">Empieza gratis</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- HERO                                        -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="max-w-5xl mx-auto px-6 pt-20 pb-16 text-center">
+        <div class="inline-block bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1.5 rounded-full mb-6 uppercase tracking-wider">
+            Para autónomos en España · 2026
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 leading-tight mb-6">
+            Deja de perder dinero<br class="hidden md:block"> siendo autónomo.
+        </h1>
+        <p class="text-lg text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+            Sabe siempre cuánto debes a Hacienda, detecta las ayudas y subvenciones que te corresponden
+            y calcula si un proyecto te sale rentable de verdad. Todo gratis.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="app.html" class="w-full sm:w-auto bg-brand-accent hover:bg-blue-600 text-white font-bold px-8 py-3.5 rounded-xl text-base transition shadow-sm">
+                Quiero probarlo gratis →
+            </a>
+            <p class="text-xs text-gray-400">Sin tarjeta de crédito · Listo en 30 segundos</p>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MÉTRICAS RÁPIDAS                            -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="bg-gray-50 border-y border-gray-100 py-8">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="grid grid-cols-3 gap-6 text-center">
+                <div>
+                    <p class="text-2xl font-bold text-gray-900">14+</p>
+                    <p class="text-xs text-gray-500 mt-1">Ayudas y subvenciones<br>filtradas por tu perfil</p>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-gray-900">3 min</p>
+                    <p class="text-xs text-gray-500 mt-1">Para saber exactamente<br>cuánto guardarte para Hacienda</p>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-gray-900">4,99 €</p>
+                    <p class="text-xs text-gray-500 mt-1">Al mes el plan PRO.<br>Menos que un café al día.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- PROBLEMAS QUE RESUELVE                      -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="max-w-5xl mx-auto px-6 py-20">
+        <h2 class="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-4">
+            Lo que ningún autónomo debería calcular a mano
+        </h2>
+        <p class="text-gray-500 text-center mb-14 max-w-xl mx-auto">
+            Tres problemas que cuestan dinero real cada trimestre.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+            <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+                <div class="text-3xl mb-4">📊</div>
+                <h3 class="font-bold text-gray-900 mb-2 text-lg">¿Cuánto le debo a Hacienda este trimestre?</h3>
+                <p class="text-sm text-gray-500 leading-relaxed">
+                    El dashboard calcula en tiempo real tu reserva de IVA e IRPF según lo que cobras y gastas.
+                    Nunca más te pillará el trimestre sin dinero apartado.
+                </p>
+                <div class="mt-4 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2 text-xs text-emerald-700 font-medium">
+                    ✅ Gratis en el plan básico
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+                <div class="text-3xl mb-4">🧮</div>
+                <h3 class="font-bold text-gray-900 mb-2 text-lg">¿Me sale a cuenta ese presupuesto?</h3>
+                <p class="text-sm text-gray-500 leading-relaxed">
+                    Calcula tu tarifa horaria mínima, analiza la rentabilidad real de un proyecto
+                    y descubre cuánto te cuesta realmente un gasto después de deducciones.
+                </p>
+                <div class="mt-4 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2 text-xs text-emerald-700 font-medium">
+                    ✅ Gratis en el plan básico
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+                <div class="text-3xl mb-4">🎁</div>
+                <h3 class="font-bold text-gray-900 mb-2 text-lg">¿Qué ayudas me estoy perdiendo?</h3>
+                <p class="text-sm text-gray-500 leading-relaxed">
+                    Más de 14 ayudas y subvenciones filtradas por tu comunidad autónoma, sector y antigüedad.
+                    Con URLs directas a cada convocatoria, documentación necesaria y fecha límite.
+                </p>
+                <div class="mt-4 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2 text-xs text-blue-700 font-medium">
+                    🔒 Disponible en PRO
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- CÓMO FUNCIONA                               -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="bg-gray-50 border-y border-gray-100 py-20">
+        <div class="max-w-5xl mx-auto px-6">
+            <h2 class="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-14">
+                En tres pasos
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="text-center">
+                    <div class="w-10 h-10 bg-brand-accent text-white font-bold rounded-full flex items-center justify-center mx-auto mb-4 text-sm">1</div>
+                    <h3 class="font-bold text-gray-900 mb-2">Crea tu cuenta gratis</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">Solo email y contraseña. Tus datos quedan guardados en la nube y accesibles desde cualquier dispositivo.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-10 h-10 bg-brand-accent text-white font-bold rounded-full flex items-center justify-center mx-auto mb-4 text-sm">2</div>
+                    <h3 class="font-bold text-gray-900 mb-2">Registra tus facturas y gastos</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">En menos de un minuto. El dashboard calcula automáticamente lo que tienes que apartar para el trimestre.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-10 h-10 bg-brand-accent text-white font-bold rounded-full flex items-center justify-center mx-auto mb-4 text-sm">3</div>
+                    <h3 class="font-bold text-gray-900 mb-2">Descubre tu dinero extra</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">Activa PRO y accede a las ayudas y subvenciones que te corresponden según tu comunidad y sector.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- PRECIOS                                     -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="max-w-5xl mx-auto px-6 py-20">
+        <h2 class="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-4">
+            Precios sin letra pequeña
+        </h2>
+        <p class="text-gray-500 text-center mb-14">Empieza gratis. Paga solo cuando necesites más.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+
+            <!-- FREE -->
+            <div class="bg-white border border-gray-200 rounded-2xl p-8">
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Gratis</p>
+                <p class="text-4xl font-bold text-gray-900 mb-1">0 €</p>
+                <p class="text-xs text-gray-400 mb-8">Para siempre</p>
+                <ul class="space-y-3 text-sm text-gray-600 mb-8">
+                    <li class="flex items-start space-x-2"><span class="text-brand-success mt-0.5">✓</span><span>Dashboard fiscal en tiempo real</span></li>
+                    <li class="flex items-start space-x-2"><span class="text-brand-success mt-0.5">✓</span><span>Registro ilimitado de facturas y gastos</span></li>
+                    <li class="flex items-start space-x-2"><span class="text-brand-success mt-0.5">✓</span><span>Calculadora de tarifa horaria</span></li>
+                    <li class="flex items-start space-x-2"><span class="text-brand-success mt-0.5">✓</span><span>Análisis de rentabilidad de proyectos</span></li>
+                    <li class="flex items-start space-x-2"><span class="text-brand-success mt-0.5">✓</span><span>Simulador de impacto fiscal de gastos</span></li>
+                    <li class="flex items-start space-x-2"><span class="text-gray-300 mt-0.5">✗</span><span class="text-gray-400">Guía completa de ayudas y subvenciones</span></li>
+                </ul>
+                <a href="app.html" class="block w-full text-center border border-gray-300 hover:border-gray-400 text-gray-700 font-bold py-3 rounded-xl text-sm transition">
+                    Empezar gratis
+                </a>
+            </div>
+
+            <!-- PRO -->
+            <div class="bg-brand-dark border border-brand-dark rounded-2xl p-8 relative">
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-accent text-white text-xs font-bold px-4 py-1 rounded-full">
+                    MÁS POPULAR
+                </div>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">PRO</p>
+                <p class="text-4xl font-bold text-white mb-1">4,99 €</p>
+                <p class="text-xs text-gray-400 mb-8">al mes · cancela cuando quieras</p>
+                <ul class="space-y-3 text-sm text-gray-300 mb-8">
+                    <li class="flex items-start space-x-2"><span class="text-brand-success mt-0.5">✓</span><span>Todo lo del plan gratis</span></li>
+                    <li class="flex items-start space-x-2"><span class="text-brand-success mt-0.5">✓</span><span>14+ ayudas filtradas por tu perfil</span></li>
+                    <li class="flex items-start space-x-2"><span class="text-brand-success mt-0.5">✓</span><span>Enlace directo a cada convocatoria oficial</span></li>
+                    <li class="flex items-start space-x-2"><span class="text-brand-success mt-0.5">✓</span><span>Documentación necesaria paso a paso</span></li>
+                    <li class="flex items-start space-x-2"><span class="text-brand-success mt-0.5">✓</span><span>Fechas límite y alertas de cierre</span></li>
+                    <li class="flex items-start space-x-2"><span class="text-brand-success mt-0.5">✓</span><span>Actualizaciones continuas de nuevas ayudas</span></li>
+                </ul>
+                <a href="app.html" class="block w-full text-center bg-brand-accent hover:bg-blue-600 text-white font-bold py-3 rounded-xl text-sm transition">
+                    Empezar con PRO →
+                </a>
+                <p class="text-center text-xs text-gray-500 mt-3">Una ayuda bien tramitada recupera 60 meses de PRO.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- CTA FINAL                                   -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="bg-brand-dark py-20">
+        <div class="max-w-3xl mx-auto px-6 text-center">
+            <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">
+                El primer trimestre sin sorpresas empieza hoy.
+            </h2>
+            <p class="text-gray-400 mb-10">Gratis, sin tarjeta, sin letra pequeña.</p>
+            <a href="app.html" class="inline-block bg-brand-accent hover:bg-blue-600 text-white font-bold px-10 py-4 rounded-xl text-base transition">
+                Crear mi cuenta gratis →
+            </a>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- FOOTER                                      -->
+    <!-- ═══════════════════════════════════════════ -->
+    <footer class="border-t border-gray-100 py-8">
+        <div class="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-2">
+                <div class="bg-brand-accent text-white font-bold text-xs w-6 h-6 rounded flex items-center justify-center">AM</div>
+                <span class="text-sm font-medium text-gray-700">AutonoMetrics</span>
+            </div>
+            <p class="text-xs text-gray-400">© 2026 AutonoMetrics · Hecho en España para autónomos españoles</p>
+            <div class="flex space-x-4 text-xs text-gray-400">
+                <a href="#" class="hover:text-gray-600 transition">Privacidad</a>
+                <a href="#" class="hover:text-gray-600 transition">Términos</a>
+                <a href="app.html" class="hover:text-gray-600 transition">Acceder</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
