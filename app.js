@@ -282,6 +282,7 @@ function traducirError(msg) {
 
 async function signOut() {
     await sb.auth.signOut();
+    window.location.reload();
 }
 
 // ═══════════════════════════════════════════════════════
