@@ -3,399 +3,646 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutonoMetrics - Control Financiero Inteligente</title>
+    <title>AutonoMetrics — Panel de Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-NMJBFKMB');</script>
+    <!-- End Google Tag Manager -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
                     colors: {
-                        brand: { dark: '#1F2937', light: '#F9FAFB', accent: '#3B82F6', success: '#10B981', warning: '#F59E0B', danger: '#EF4444' }
+                        brand: {
+                            navy:    '#0A2540',
+                            bg:      '#F6F9FC',
+                            surface: '#FFFFFF',
+                            border:  '#E3E8EE',
+                            accent:  '#0073E6',
+                            success: '#09825D',
+                            warning: '#B7791F',
+                            danger:  '#C0392B',
+                            muted:   '#697386',
+                            text:    '#1A1F36',
+                        }
+                    },
+                    boxShadow: {
+                        'card':  '0 1px 3px 0 rgba(60,66,87,.08), 0 0 0 1px rgba(60,66,87,.08)',
+                        'modal': '0 30px 60px -12px rgba(50,50,93,.25), 0 18px 36px -18px rgba(0,0,0,.3)',
                     }
                 }
             }
         }
     </script>
     <style>
+        * { -webkit-font-smoothing: antialiased; }
+        body { font-feature-settings: 'cv02','cv03','cv04','cv11'; }
         .view-section { display: none; }
         .view-section.active { display: block; }
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
+
+        .form-label {
+            display: block;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: #697386;
+            margin-bottom: 0.375rem;
+            letter-spacing: 0.02em;
+        }
+        .form-input {
+            width: 100%;
+            background: #fff;
+            border: 1px solid #E3E8EE;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.875rem;
+            color: #1A1F36;
+            font-family: 'Inter', sans-serif;
+            transition: border-color .15s, box-shadow .15s;
+            outline: none;
+        }
+        .form-input:focus {
+            border-color: #0073E6;
+            box-shadow: 0 0 0 3px rgba(0,115,230,.15);
+        }
+        .form-input::placeholder { color: #AAB7C4; }
+
+        /* Sidebar nav active */
+        .nav-active {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            font-weight: 600;
+        }
+        .nav-inactive {
+            color: rgba(255,255,255,0.5);
+            font-weight: 500;
+        }
+        .nav-inactive:hover {
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Stripe-style divider */
+        .stripe-divider { border-color: #E3E8EE; }
+
+        /* Tabular numbers */
+        .tabnum { font-variant-numeric: tabular-nums; }
     </style>
 </head>
-<body class="bg-brand-light text-brand-dark font-sans min-h-screen flex flex-col md:flex-row">
+<body class="bg-brand-bg text-brand-text font-sans min-h-screen flex flex-col md:flex-row">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NMJBFKMB"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
 
-    <!-- ═══════════════════════════════════════════ -->
-    <!-- MODAL DE AUTENTICACIÓN                      -->
-    <!-- ═══════════════════════════════════════════ -->
-    <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-        <div class="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl mx-4">
-            <div class="text-center mb-6">
-                <div class="bg-brand-accent p-2 rounded-lg text-white font-bold text-xl w-12 h-12 flex items-center justify-center mx-auto mb-3">AM</div>
-                <h2 id="auth-title" class="text-xl font-bold text-gray-800">Iniciar sesión</h2>
-                <p id="auth-subtitle" class="text-xs text-gray-500 mt-1">Accede a tu panel de AutonoMetrics</p>
+    <!-- ═══════════════════════════════════ -->
+    <!-- MODAL AUTH                          -->
+    <!-- ═══════════════════════════════════ -->
+    <div id="auth-modal" class="fixed inset-0 bg-brand-navy/80 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 w-full max-w-sm shadow-modal mx-4">
+            <div class="text-center mb-7">
+                <div class="w-11 h-11 rounded-xl bg-brand-accent flex items-center justify-center mx-auto mb-4 text-white font-black text-sm">AM</div>
+                <h2 id="auth-title" class="text-xl font-bold text-brand-text">Iniciar sesión</h2>
+                <p id="auth-subtitle" class="text-xs text-brand-muted mt-1">Accede a tu panel de AutonoMetrics</p>
             </div>
             <form id="auth-form" class="space-y-4">
                 <div>
-                    <label class="block text-[11px] font-bold text-gray-500 mb-1">Email</label>
-                    <input type="email" id="auth-email" required placeholder="tu@email.com"
-                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="auth-email" required placeholder="tu@email.com" class="form-input">
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-gray-500 mb-1">Contraseña</label>
-                    <input type="password" id="auth-password" required placeholder="••••••••" minlength="6"
-                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" id="auth-password" required placeholder="••••••••" minlength="6" class="form-input">
                 </div>
-                <div id="auth-error" class="hidden text-xs text-red-600 bg-red-50 border border-red-200 p-2.5 rounded-lg"></div>
+                <div id="auth-error" class="hidden text-xs text-red-700 bg-red-50 border border-red-200 px-3 py-2.5 rounded-lg"></div>
                 <button type="submit" id="auth-submit"
-                    class="w-full bg-brand-accent hover:bg-blue-600 text-white font-bold py-2.5 rounded-lg text-sm transition">
+                    class="w-full bg-brand-accent hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">
                     Iniciar sesión
                 </button>
             </form>
-            <p class="text-center text-xs text-gray-500 mt-5">
+            <p class="text-center text-xs text-brand-muted mt-5">
                 <span id="auth-toggle-text">¿No tienes cuenta?</span>
                 <button onclick="toggleAuthMode()" id="auth-toggle-btn"
-                    class="text-brand-accent font-bold ml-1 hover:underline">Crear cuenta gratis</button>
+                    class="text-brand-accent font-semibold ml-1 hover:underline">Crear cuenta gratis</button>
             </p>
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════ -->
-    <!-- SIDEBAR                                     -->
-    <!-- ═══════════════════════════════════════════ -->
-    <aside class="w-full md:w-64 bg-brand-dark text-white flex flex-col justify-between p-6 shadow-xl">
-        <div>
-            <div class="flex items-center space-x-3 mb-8">
-                <div class="bg-brand-accent p-2 rounded-lg text-white font-bold text-xl">AM</div>
-                <span class="text-xl font-bold tracking-wider">AutonoMetrics</span>
+    <!-- ═══════════════════════════════════ -->
+    <!-- MODAL DECLARACIÓN TRIMESTRAL        -->
+    <!-- ═══════════════════════════════════ -->
+    <div id="modal-liquidacion" class="fixed inset-0 bg-brand-navy/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl w-full max-w-md shadow-modal mx-4 overflow-hidden">
+            <div class="bg-brand-navy px-6 py-5 flex items-start justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1.5">Declaración Trimestral</p>
+                    <h2 id="liq-title" class="text-2xl font-black text-white tabnum"></h2>
+                    <p id="liq-periodo" class="text-xs text-slate-400 mt-0.5"></p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] text-slate-500 uppercase font-semibold">Plazo límite</p>
+                    <p id="liq-plazo" class="text-xs text-amber-400 font-bold mt-0.5"></p>
+                </div>
             </div>
-            <nav class="space-y-2">
+            <div class="p-6 space-y-4">
+                <!-- Modelo 303 -->
+                <div class="rounded-xl border border-brand-border p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-xs font-bold text-brand-text uppercase tracking-wider">Modelo 303 · IVA</p>
+                        <span class="text-[10px] bg-red-50 text-red-600 border border-red-100 font-semibold px-2 py-0.5 rounded-full">A ingresar</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between text-brand-muted">
+                            <span>IVA repercutido (cobrado)</span>
+                            <span id="liq-iva-cobrado" class="font-medium text-brand-text tabnum"></span>
+                        </div>
+                        <div class="flex justify-between text-brand-muted">
+                            <span>IVA soportado (pagado)</span>
+                            <span id="liq-iva-pagado" class="font-medium text-brand-success tabnum"></span>
+                        </div>
+                        <div class="border-t border-brand-border pt-2 flex justify-between font-semibold text-brand-text">
+                            <span>A ingresar en Hacienda</span>
+                            <span id="liq-iva-pagar" class="text-brand-danger tabnum"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modelo 130 -->
+                <div class="rounded-xl border border-brand-border p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-xs font-bold text-brand-text uppercase tracking-wider">Modelo 130 · IRPF</p>
+                        <span class="text-[10px] bg-amber-50 text-amber-600 border border-amber-100 font-semibold px-2 py-0.5 rounded-full">Pago fraccionado</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between text-brand-muted">
+                            <span>Rendimiento neto del periodo</span>
+                            <span id="liq-base" class="font-medium text-brand-text tabnum"></span>
+                        </div>
+                        <div class="flex justify-between text-brand-muted">
+                            <span>Retención estimada (19%)</span>
+                            <span id="liq-irpf-pagar" class="font-medium text-amber-600 tabnum"></span>
+                        </div>
+                        <div class="border-t border-brand-border pt-2 flex justify-between font-semibold text-brand-text">
+                            <span>A ingresar en Hacienda</span>
+                            <span id="liq-irpf-total" class="text-amber-600 tabnum"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Total -->
+                <div class="bg-brand-navy rounded-xl p-4 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase tracking-wide">Total a pagar</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Modelos 303 + 130 combinados</p>
+                    </div>
+                    <p id="liq-total" class="text-2xl font-black text-white tabnum"></p>
+                </div>
+                <p class="text-[10px] text-brand-muted text-center leading-relaxed">
+                    Estimación basada en los movimientos registrados. Consulta con tu asesor para deducciones adicionales.
+                </p>
+                <button onclick="cerrarLiquidacion()"
+                    class="w-full border border-brand-border hover:bg-slate-50 text-brand-muted font-semibold py-2.5 rounded-lg text-sm transition-colors">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- SIDEBAR                             -->
+    <!-- ═══════════════════════════════════ -->
+    <aside class="w-full md:w-56 bg-brand-navy flex flex-col justify-between py-7 px-4 shrink-0">
+        <div>
+            <!-- Logo -->
+            <div class="flex items-center gap-2.5 px-2 mb-8">
+                <div class="w-7 h-7 rounded-lg bg-brand-accent flex items-center justify-center text-white font-black text-xs">AM</div>
+                <span class="font-bold text-sm text-white tracking-tight">AutonoMetrics</span>
+            </div>
+
+            <!-- Nav -->
+            <nav class="space-y-0.5">
                 <button onclick="switchView('dashboard')" id="nav-dashboard"
-                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left bg-brand-accent text-white font-medium transition">
-                    <span>📊 Dashboard</span>
+                    class="nav-active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-colors">
+                    <span class="w-4 text-center opacity-70">⊞</span><span>Dashboard</span>
                 </button>
                 <button onclick="switchView('calculadora')" id="nav-calculadora"
-                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left hover:bg-gray-800 text-gray-400 hover:text-white transition">
-                    <span>🧮 Simuladores</span>
+                    class="nav-inactive w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-colors">
+                    <span class="w-4 text-center opacity-70">◈</span><span>Simuladores</span>
                 </button>
                 <button onclick="switchView('ayudas')" id="nav-ayudas"
-                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left hover:bg-gray-800 text-gray-400 hover:text-white transition">
-                    <span>🎁 Mis Ayudas</span>
+                    class="nav-inactive w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-colors">
+                    <span class="w-4 text-center opacity-70">◇</span><span>Mis Ayudas</span>
                 </button>
             </nav>
         </div>
 
-        <div class="mt-8 pt-6 border-t border-gray-700 space-y-3">
-            <!-- Info del usuario logueado -->
-            <div id="user-info" class="hidden text-center">
-                <p class="text-xs text-gray-400 truncate px-1" id="user-email"></p>
-                <button onclick="signOut()" class="text-xs text-gray-500 hover:text-white transition mt-1">
-                    Cerrar sesión →
+        <!-- Footer -->
+        <div class="space-y-4">
+            <!-- User -->
+            <div id="user-info" class="hidden px-2">
+                <div class="flex items-center gap-2.5 mb-1.5">
+                    <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold text-white/70 shrink-0">
+                        <span id="user-initial"></span>
+                    </div>
+                    <p class="text-xs text-white/40 truncate flex-1" id="user-email"></p>
+                </div>
+                <button onclick="signOut()" class="text-[11px] text-white/30 hover:text-white/60 transition-colors font-medium pl-[34px]">
+                    Cerrar sesión
                 </button>
             </div>
-            <!-- Badge de plan -->
-            <div class="bg-gray-800 p-4 rounded-xl text-center">
-                <span id="plan-badge" class="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full font-bold mb-3 inline-block">GRATIS</span>
+
+            <div class="border-t border-white/10 pt-4 space-y-2.5">
+                <div class="flex justify-center">
+                    <span id="plan-badge" class="text-[10px] bg-white/10 text-white/40 px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider">Gratis</span>
+                </div>
                 <button onclick="togglePremiumPlan()" id="btn-toggle-plan"
-                    class="w-full text-xs bg-brand-accent hover:bg-blue-600 text-white font-bold py-2 rounded-lg transition">
-                    ✨ Actualizar a PRO — 4,99 €/mes
+                    class="w-full text-xs bg-brand-accent hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors">
+                    ✦ Activar PRO · 4,99 €/mes
                 </button>
             </div>
         </div>
     </aside>
 
-    <!-- ═══════════════════════════════════════════ -->
-    <!-- CONTENIDO PRINCIPAL                         -->
-    <!-- ═══════════════════════════════════════════ -->
-    <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+    <!-- ═══════════════════════════════════ -->
+    <!-- MAIN                                -->
+    <!-- ═══════════════════════════════════ -->
+    <main class="flex-1 overflow-y-auto">
 
-        <!-- DASHBOARD -->
-        <section id="view-dashboard" class="view-section active space-y-8">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b pb-4 border-gray-200">
+        <!-- ══════════════════════════════ -->
+        <!-- DASHBOARD                      -->
+        <!-- ══════════════════════════════ -->
+        <section id="view-dashboard" class="view-section active">
+
+            <!-- Top bar -->
+            <div class="border-b border-brand-border bg-white px-8 py-4 flex items-center justify-between sticky top-0 z-10">
                 <div>
-                    <h1 class="text-3xl font-bold tracking-tight">Panel de Control</h1>
-                    <p class="text-gray-500 text-sm mt-1">Estado en tiempo real y proyecciones fiscales.</p>
+                    <h1 class="text-base font-bold text-brand-text">Panel de Control</h1>
+                    <p class="text-xs text-brand-muted mt-0.5"><span id="cuarto-actual"></span></p>
                 </div>
-                <div class="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4 mt-4 md:mt-0">
-                    <div class="bg-white border border-gray-200 px-4 py-2 rounded-xl flex items-center space-x-3 shadow-sm">
-                        <span class="text-xs font-bold text-gray-500 uppercase">Estado Fiscal:</span>
-                        <div id="indicador-salud" class="flex items-center space-x-2"></div>
-                    </div>
+                <div class="flex items-center gap-3">
+                    <div id="indicador-salud" class="flex items-center gap-1.5 text-xs font-semibold border border-brand-border bg-white rounded-full px-3 py-1.5"></div>
                     <button onclick="limpiarTransacciones()"
-                        class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2 rounded-xl text-xs font-bold flex items-center transition">
-                        🗑️ Limpiar Todo
+                        class="text-xs text-brand-muted hover:text-brand-danger border border-brand-border hover:border-red-200 bg-white rounded-full px-3 py-1.5 font-medium transition-colors">
+                        Limpiar datos
                     </button>
                 </div>
             </div>
 
-            <div id="panel-alertas" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+            <div class="p-8 space-y-6 max-w-5xl">
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <span class="text-xs font-semibold text-gray-400 uppercase">Ingresos Totales</span>
-                    <h3 id="txt-total-ingresos" class="text-xl font-bold text-brand-dark mt-1">0,00 €</h3>
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <span class="text-xs font-semibold text-gray-400 uppercase">Gastos Totales</span>
-                    <h3 id="txt-total-gastos" class="text-xl font-bold text-brand-dark mt-1">0,00 €</h3>
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-emerald-200 bg-emerald-50">
-                    <span class="text-xs font-semibold text-brand-success uppercase">Rendimiento Neto</span>
-                    <h3 id="txt-neto-limpio" class="text-xl font-bold text-brand-success mt-1">0,00 €</h3>
-                </div>
-                <div class="bg-gradient-to-br from-gray-800 to-gray-900 p-5 rounded-2xl shadow-sm text-white">
-                    <span class="text-xs font-semibold text-gray-300 uppercase">📈 Predicción Trimestre</span>
-                    <h3 id="txt-prediccion" class="text-xl font-bold mt-1">0,00 €</h3>
-                    <p class="text-[10px] text-gray-400 mt-1">Estimación basada en ritmo actual</p>
-                </div>
-            </div>
+                <!-- Alertas -->
+                <div id="panel-alertas" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h4 class="text-lg font-bold">Reserva Fiscal Obligatoria</h4>
-                        <p class="text-xs text-gray-400">Capital intocable para liquidación de IVA e IRPF.</p>
+                <!-- KPI cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-xl border border-brand-border shadow-card p-5">
+                        <p class="text-xs font-semibold text-brand-muted uppercase tracking-wider">Ingresos</p>
+                        <p id="txt-total-ingresos" class="text-2xl font-bold text-brand-text mt-3 tabnum">0,00 €</p>
+                        <p class="text-xs text-brand-muted mt-1">Base imponible</p>
                     </div>
-                    <span id="txt-total-hucha" class="text-2xl font-black text-brand-danger">0,00 €</span>
+                    <div class="bg-white rounded-xl border border-brand-border shadow-card p-5">
+                        <p class="text-xs font-semibold text-brand-muted uppercase tracking-wider">Gastos</p>
+                        <p id="txt-total-gastos" class="text-2xl font-bold text-brand-text mt-3 tabnum">0,00 €</p>
+                        <p class="text-xs text-brand-muted mt-1">Gastos deducibles</p>
+                    </div>
+                    <div class="bg-white rounded-xl border border-brand-border shadow-card p-5">
+                        <p class="text-xs font-semibold text-brand-muted uppercase tracking-wider">Neto para ti</p>
+                        <p id="txt-neto-limpio" class="text-2xl font-bold text-brand-success mt-3 tabnum">0,00 €</p>
+                        <p class="text-xs text-brand-muted mt-1">Tras impuestos</p>
+                    </div>
+                    <div class="bg-white rounded-xl border border-brand-border shadow-card p-5">
+                        <p class="text-xs font-semibold text-brand-muted uppercase tracking-wider">Previsión trim.</p>
+                        <p id="txt-prediccion" class="text-2xl font-bold text-brand-accent mt-3 tabnum">0,00 €</p>
+                        <p class="text-xs text-brand-muted mt-1">A ritmo actual</p>
+                    </div>
                 </div>
-                <div class="w-full bg-gray-100 rounded-full h-4 overflow-hidden flex">
-                    <div id="bar-iva" class="bg-brand-danger h-full transition-all duration-500" style="width: 0%"></div>
-                    <div id="bar-irpf" class="bg-amber-500 h-full transition-all duration-500" style="width: 0%"></div>
-                </div>
-                <div class="flex space-x-6 text-xs font-medium">
-                    <span class="text-brand-danger">• IVA a devolver: <strong id="txt-subtotal-iva">0,00 €</strong></span>
-                    <span class="text-amber-600">• IRPF provisto: <strong id="txt-subtotal-irpf">0,00 €</strong></span>
-                </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                    <h4 class="text-md font-bold text-brand-success flex items-center space-x-2">
-                        <span>📄</span><span>Registrar Factura Emitida</span>
-                    </h4>
-                    <form id="form-ingreso" onsubmit="addTransaction(event, 'ingreso')" class="space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
+                <!-- Reserva fiscal -->
+                <div class="bg-white rounded-xl border border-brand-border shadow-card">
+                    <div class="p-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-500 mb-1">Fecha</label>
-                                <input type="date" id="ingreso-fecha" required class="w-full border rounded-lg px-3 py-2 text-sm">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <p class="text-xs font-semibold text-brand-muted uppercase tracking-wider">Reserva Fiscal Obligatoria</p>
+                                    <span class="text-[10px] font-semibold bg-red-50 text-brand-danger border border-red-100 px-2 py-0.5 rounded-full">No tocar</span>
+                                </div>
+                                <p id="txt-total-hucha" class="text-4xl font-bold text-brand-danger tabnum">0,00 €</p>
+                                <p class="text-xs text-brand-muted mt-1.5">Capital reservado para IVA e IRPF del trimestre</p>
                             </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-500 mb-1">Cliente / CIF</label>
-                                <input type="text" id="ingreso-concepto" required placeholder="Nombre del cliente" class="w-full border rounded-lg px-3 py-2 text-sm">
+                            <button onclick="mostrarLiquidacion()"
+                                class="shrink-0 flex items-center gap-2 bg-brand-navy hover:bg-[#0d3060] text-white font-semibold text-sm px-5 py-3 rounded-lg transition-colors">
+                                <span>📋</span>
+                                <span>¿Cuánto pago este trimestre?</span>
+                            </button>
+                        </div>
+                        <div class="mt-5 space-y-2">
+                            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden flex">
+                                <div id="bar-iva" class="bg-brand-danger h-full transition-all duration-700 rounded-l-full" style="width:0%"></div>
+                                <div id="bar-irpf" class="bg-amber-400 h-full transition-all duration-700" style="width:0%"></div>
+                            </div>
+                            <div class="flex items-center gap-6 text-xs text-brand-muted">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-brand-danger inline-block"></span>
+                                    IVA: <strong id="txt-subtotal-iva" class="text-brand-text tabnum">0,00 €</strong>
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span>
+                                    IRPF: <strong id="txt-subtotal-irpf" class="text-brand-text tabnum">0,00 €</strong>
+                                </span>
                             </div>
                         </div>
-                        <div class="grid grid-cols-3 gap-3">
+                    </div>
+                </div>
+
+                <!-- Formularios -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Ingresos -->
+                    <div class="bg-white rounded-xl border border-brand-border shadow-card p-6">
+                        <div class="flex items-center gap-2.5 mb-5 pb-4 border-b border-brand-border">
+                            <div class="w-7 h-7 rounded-md bg-emerald-50 border border-emerald-100 flex items-center justify-center text-sm">↑</div>
+                            <h4 class="font-semibold text-brand-text text-sm">Registrar Factura Emitida</h4>
+                        </div>
+                        <form id="form-ingreso" onsubmit="addTransaction(event, 'ingreso')" class="space-y-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="form-label">Fecha</label>
+                                    <input type="date" id="ingreso-fecha" required class="form-input">
+                                </div>
+                                <div>
+                                    <label class="form-label">Cliente</label>
+                                    <input type="text" id="ingreso-concepto" required placeholder="Nombre" class="form-input">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3">
+                                <div>
+                                    <label class="form-label">IVA</label>
+                                    <select id="ingreso-iva" class="form-input">
+                                        <option value="0.21">21%</option>
+                                        <option value="0.10">10%</option>
+                                        <option value="0.04">4%</option>
+                                        <option value="0">Exento</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="form-label">Base imponible (€)</label>
+                                    <input type="number" step="0.01" id="ingreso-base" required placeholder="0,00" class="form-input">
+                                </div>
+                            </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-500 mb-1">IVA (%)</label>
-                                <select id="ingreso-iva" class="w-full border rounded-lg px-3 py-2 text-sm">
+                                <label class="form-label">Estado</label>
+                                <select id="ingreso-estado" class="form-input">
+                                    <option value="cobrada">Cobrada</option>
+                                    <option value="pendiente">Pendiente de cobro</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-brand-success hover:bg-emerald-800 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors mt-1">
+                                Guardar Factura
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Gastos -->
+                    <div class="bg-white rounded-xl border border-brand-border shadow-card p-6">
+                        <div class="flex items-center gap-2.5 mb-5 pb-4 border-b border-brand-border">
+                            <div class="w-7 h-7 rounded-md bg-red-50 border border-red-100 flex items-center justify-center text-sm">↓</div>
+                            <h4 class="font-semibold text-brand-text text-sm">Registrar Gasto Deducible</h4>
+                        </div>
+                        <form id="form-gasto" onsubmit="addTransaction(event, 'gasto')" class="space-y-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="form-label">Fecha</label>
+                                    <input type="date" id="gasto-fecha" required class="form-input">
+                                </div>
+                                <div>
+                                    <label class="form-label">Proveedor</label>
+                                    <input type="text" id="gasto-concepto" required placeholder="Nombre" class="form-input">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3">
+                                <div>
+                                    <label class="form-label">IVA</label>
+                                    <select id="gasto-iva" class="form-input">
+                                        <option value="0.21">21%</option>
+                                        <option value="0.10">10%</option>
+                                        <option value="0">0%</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="form-label">Base imponible (€)</label>
+                                    <input type="number" step="0.01" id="gasto-base" required placeholder="0,00" class="form-input">
+                                </div>
+                            </div>
+                            <input type="hidden" id="gasto-estado" value="pagado">
+                            <div class="h-[38px]"></div>
+                            <button type="submit" class="w-full bg-brand-danger hover:bg-red-800 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors mt-1">
+                                Guardar Gasto
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Tabla movimientos -->
+                <div class="bg-white rounded-xl border border-brand-border shadow-card overflow-hidden">
+                    <div class="px-6 py-4 border-b border-brand-border flex items-center justify-between">
+                        <h4 class="font-semibold text-brand-text text-sm">Movimientos</h4>
+                        <span class="text-[11px] text-brand-muted">Más recientes primero</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b border-brand-border">
+                                    <th class="px-6 py-3 text-[11px] font-semibold text-brand-muted uppercase tracking-wider">Fecha</th>
+                                    <th class="px-6 py-3 text-[11px] font-semibold text-brand-muted uppercase tracking-wider">Concepto</th>
+                                    <th class="px-6 py-3 text-[11px] font-semibold text-brand-muted uppercase tracking-wider">Tipo</th>
+                                    <th class="px-6 py-3 text-[11px] font-semibold text-brand-muted uppercase tracking-wider text-right">Base</th>
+                                    <th class="px-6 py-3 text-[11px] font-semibold text-brand-muted uppercase tracking-wider text-right">IVA</th>
+                                    <th class="px-6 py-3 text-[11px] font-semibold text-brand-muted uppercase tracking-wider text-center">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lista-movimientos"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════ -->
+        <!-- SIMULADORES                    -->
+        <!-- ══════════════════════════════ -->
+        <section id="view-calculadora" class="view-section">
+            <div class="border-b border-brand-border bg-white px-8 py-4">
+                <h1 class="text-base font-bold text-brand-text">Simuladores de Negocio</h1>
+                <p class="text-xs text-brand-muted mt-0.5">Calcula antes de decidir.</p>
+            </div>
+            <div class="p-8 max-w-5xl">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+                    <div class="bg-white rounded-xl border border-brand-border shadow-card p-6 space-y-4">
+                        <div class="pb-4 border-b border-brand-border">
+                            <h3 class="font-semibold text-brand-text text-sm">⏱ Tarifa Horaria</h3>
+                            <p class="text-xs text-brand-muted mt-0.5">¿Cuánto cobrar por hora para vivir bien?</p>
+                        </div>
+                        <div class="space-y-3">
+                            <div><label class="form-label">Sueldo neto deseado (€/mes)</label>
+                                <input type="number" id="calc-sueldo" placeholder="2.000" class="form-input"></div>
+                            <div><label class="form-label">Gastos fijos + cuota RETA (€/mes)</label>
+                                <input type="number" id="calc-gastos" placeholder="500" class="form-input"></div>
+                            <div><label class="form-label">Horas facturables al mes</label>
+                                <input type="number" id="calc-horas" placeholder="120" class="form-input"></div>
+                            <button onclick="ejecutarCalculadoraPrecio()" class="w-full bg-brand-navy hover:bg-[#0d3060] text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">
+                                Calcular
+                            </button>
+                        </div>
+                        <div id="calc-resultado" class="hidden space-y-2">
+                            <div class="border border-brand-border rounded-lg px-4 py-3 flex justify-between items-center">
+                                <span class="text-xs text-brand-muted">Mínima (supervivencia)</span>
+                                <span id="res-tarifa-min" class="font-semibold text-brand-text tabnum">— €/h</span>
+                            </div>
+                            <div class="border border-brand-accent/30 bg-blue-50 rounded-lg px-4 py-3 flex justify-between items-center">
+                                <span class="text-xs text-brand-accent font-semibold">Recomendada (+30%)</span>
+                                <span id="res-tarifa-rec" class="text-lg font-bold text-brand-accent tabnum">— €/h</span>
+                            </div>
+                            <div class="border border-brand-border bg-emerald-50 rounded-lg px-4 py-3 flex justify-between items-center">
+                                <span class="text-xs text-brand-success font-medium">Premium (valor alto)</span>
+                                <span id="res-tarifa-pre" class="font-semibold text-brand-success tabnum">— €/h</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-brand-border shadow-card p-6 space-y-4">
+                        <div class="pb-4 border-b border-brand-border">
+                            <h3 class="font-semibold text-brand-text text-sm">💼 Rentabilidad Proyecto</h3>
+                            <p class="text-xs text-brand-muted mt-0.5">¿Te sale a cuenta ese presupuesto?</p>
+                        </div>
+                        <div class="space-y-3">
+                            <div><label class="form-label">Presupuesto a cobrar (€)</label>
+                                <input type="number" id="proy-presupuesto" placeholder="5.000" class="form-input"></div>
+                            <div><label class="form-label">Coste materiales / terceros (€)</label>
+                                <input type="number" id="proy-materiales" placeholder="0" class="form-input"></div>
+                            <div><label class="form-label">Horas estimadas a invertir</label>
+                                <input type="number" id="proy-horas" placeholder="80" class="form-input"></div>
+                            <button onclick="ejecutarRentabilidad()" class="w-full bg-brand-navy hover:bg-[#0d3060] text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">
+                                Analizar
+                            </button>
+                        </div>
+                        <div id="proy-resultado" class="hidden p-4 rounded-xl border border-brand-border space-y-2">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-brand-muted">Margen comercial</span>
+                                <span id="proy-res-margen" class="font-bold text-brand-text tabnum">0%</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-brand-muted">Valor real por hora</span>
+                                <span id="proy-res-ph" class="font-bold text-brand-text tabnum">0 €/h</span>
+                            </div>
+                            <p id="proy-res-veredicto" class="text-xs font-bold text-center uppercase pt-1 border-t border-brand-border mt-2"></p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-brand-border shadow-card p-6 space-y-4">
+                        <div class="pb-4 border-b border-brand-border">
+                            <h3 class="font-semibold text-brand-text text-sm">📉 Impacto Fiscal del Gasto</h3>
+                            <p class="text-xs text-brand-muted mt-0.5">¿Cuánto te cuesta realmente esa compra?</p>
+                        </div>
+                        <div class="space-y-3">
+                            <div><label class="form-label">Total pagado con IVA (€)</label>
+                                <input type="number" id="imp-gasto" placeholder="1.210" class="form-input"></div>
+                            <div><label class="form-label">Tipo de IVA</label>
+                                <select id="imp-iva" class="form-input">
                                     <option value="0.21">21%</option>
                                     <option value="0.10">10%</option>
                                     <option value="0.04">4%</option>
-                                    <option value="0">Exento</option>
                                 </select>
                             </div>
-                            <div class="col-span-2">
-                                <label class="block text-[11px] font-bold text-gray-500 mb-1">Base Imponible (€)</label>
-                                <input type="number" step="0.01" id="ingreso-base" required class="w-full border rounded-lg px-3 py-2 text-sm">
+                            <div class="h-[38px]"></div>
+                            <button onclick="ejecutarImpactoFiscal()" class="w-full bg-brand-navy hover:bg-[#0d3060] text-white font-semibold py-2.5 rounded-lg text-sm transition-colors">
+                                Calcular coste real
+                            </button>
+                        </div>
+                        <div id="imp-resultado" class="hidden border border-brand-border rounded-xl p-4 space-y-2.5">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-brand-muted text-xs">IVA deducible</span>
+                                <span id="res-imp-iva" class="font-semibold text-brand-success tabnum">0 €</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-brand-muted text-xs">IRPF deducible (~19%)</span>
+                                <span id="res-imp-irpf" class="font-semibold text-brand-success tabnum">0 €</span>
+                            </div>
+                            <div class="border-t border-brand-border pt-2.5 flex justify-between items-center">
+                                <span class="text-xs font-semibold text-brand-muted uppercase">Coste real para ti</span>
+                                <span id="res-imp-real" class="font-bold text-brand-text text-lg tabnum">0 €</span>
                             </div>
                         </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════ -->
+        <!-- AYUDAS                         -->
+        <!-- ══════════════════════════════ -->
+        <section id="view-ayudas" class="view-section">
+            <div class="border-b border-brand-border bg-white px-8 py-4 flex items-end justify-between">
+                <div>
+                    <h1 class="text-base font-bold text-brand-text">Mis Ayudas y Subvenciones</h1>
+                    <p class="text-xs text-brand-muted mt-0.5">URLs directas a cada convocatoria oficial.</p>
+                </div>
+                <span id="ayudas-counter" class="text-xs font-semibold text-brand-accent"></span>
+            </div>
+            <div class="p-8 space-y-6 max-w-5xl">
+
+                <div class="bg-white rounded-xl border border-brand-border shadow-card p-5">
+                    <p class="form-label mb-4 text-xs font-bold uppercase tracking-wider text-brand-muted">Tu perfil de autónomo</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-500 mb-1">Estado de Cobro</label>
-                            <select id="ingreso-estado" class="w-full border rounded-lg px-3 py-2 text-sm bg-gray-50">
-                                <option value="cobrada">✅ Cobrada (Dinero en banco)</option>
-                                <option value="pendiente">⏳ Pendiente de cobro</option>
+                            <label class="form-label">Comunidad Autónoma</label>
+                            <select id="profile-comunidad" onchange="actualizarPerfil()" class="form-input">
+                                <option value="Murcia">Región de Murcia</option>
+                                <option value="Madrid">Comunidad de Madrid</option>
+                                <option value="Andalucia">Andalucía</option>
+                                <option value="Cataluña">Cataluña</option>
                             </select>
                         </div>
-                        <button type="submit" class="w-full bg-brand-success hover:bg-emerald-600 text-white font-bold py-2 rounded-lg text-sm transition">Guardar Factura</button>
-                    </form>
+                        <div>
+                            <label class="form-label">Sector de actividad</label>
+                            <select id="profile-sector" onchange="actualizarPerfil()" class="form-input">
+                                <option value="Tecnológico">Tecnológico / Digital</option>
+                                <option value="Comercio">Comercio al por menor</option>
+                                <option value="Hostelería">Hostelería y Turismo</option>
+                                <option value="Construcción">Construcción y Reformas</option>
+                                <option value="Transporte">Transporte y Logística</option>
+                                <option value="Cualquiera">Cualquier Sector / Otros</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Antigüedad en el RETA</label>
+                            <select id="profile-antiguedad" onchange="actualizarPerfil()" class="form-input">
+                                <option value="0">Alta nueva (menos de 1 año)</option>
+                                <option value="12">Consolidado (más de 1 año)</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                    <h4 class="text-md font-bold text-brand-danger flex items-center space-x-2">
-                        <span>🛒</span><span>Registrar Gasto Deducible</span>
-                    </h4>
-                    <form id="form-gasto" onsubmit="addTransaction(event, 'gasto')" class="space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-500 mb-1">Fecha</label>
-                                <input type="date" id="gasto-fecha" required class="w-full border rounded-lg px-3 py-2 text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-500 mb-1">Proveedor</label>
-                                <input type="text" id="gasto-concepto" required class="w-full border rounded-lg px-3 py-2 text-sm">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-3 gap-3">
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-500 mb-1">IVA (%)</label>
-                                <select id="gasto-iva" class="w-full border rounded-lg px-3 py-2 text-sm">
-                                    <option value="0.21">21%</option>
-                                    <option value="0.10">10%</option>
-                                    <option value="0">0%</option>
-                                </select>
-                            </div>
-                            <div class="col-span-2">
-                                <label class="block text-[11px] font-bold text-gray-500 mb-1">Base Imponible (€)</label>
-                                <input type="number" step="0.01" id="gasto-base" required class="w-full border rounded-lg px-3 py-2 text-sm">
-                            </div>
-                        </div>
-                        <input type="hidden" id="gasto-estado" value="pagado">
-                        <button type="submit" class="w-full bg-brand-danger hover:bg-red-600 text-white font-bold py-2 rounded-lg text-sm transition mt-8">Guardar Gasto</button>
-                    </form>
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 px-2.5 py-1 rounded-full">● Subvención directa</span>
+                    <span class="text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-100 px-2.5 py-1 rounded-full">● Bonificación de cuota</span>
+                    <span class="text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-1 rounded-full">● Bono / Cupón</span>
+                    <span class="text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-100 px-2.5 py-1 rounded-full">● Subvención + Inversión</span>
                 </div>
+
+                <div id="ayudas-container" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
             </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <h4 class="text-lg font-bold mb-4">Últimos Movimientos</h4>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead>
-                            <tr class="border-b border-gray-200 text-gray-500">
-                                <th class="py-2 font-semibold">Fecha</th>
-                                <th class="py-2 font-semibold">Concepto</th>
-                                <th class="py-2 font-semibold">Tipo</th>
-                                <th class="py-2 font-semibold">Base (€)</th>
-                                <th class="py-2 font-semibold">IVA (€)</th>
-                                <th class="py-2 font-semibold">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="lista-movimientos"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- SIMULADORES -->
-        <section id="view-calculadora" class="view-section space-y-8">
-            <h1 class="text-3xl font-bold tracking-tight">Simuladores de Negocio</h1>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                    <h3 class="text-lg font-bold flex items-center space-x-2"><span>⏱️</span><span>Tarifa Horaria</span></h3>
-                    <div class="space-y-3">
-                        <input type="number" id="calc-sueldo" placeholder="Sueldo NETO deseado (€/mes)" class="w-full border rounded-lg px-3 py-2 text-sm">
-                        <input type="number" id="calc-gastos" placeholder="Gastos Fijos + Cuota (€/mes)" class="w-full border rounded-lg px-3 py-2 text-sm">
-                        <input type="number" id="calc-horas" placeholder="Horas facturables al mes" class="w-full border rounded-lg px-3 py-2 text-sm">
-                        <button onclick="ejecutarCalculadoraPrecio()" class="w-full bg-brand-dark hover:bg-gray-800 text-white font-bold py-2 rounded-lg text-sm transition">Analizar Tarifas</button>
-                    </div>
-                    <div id="calc-resultado" class="hidden mt-4 space-y-3">
-                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex justify-between items-center">
-                            <span class="text-xs text-gray-500 font-bold">Mínima (Supervivencia):</span>
-                            <span id="res-tarifa-min" class="font-bold text-gray-700">0 €/h</span>
-                        </div>
-                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 flex justify-between items-center shadow-sm">
-                            <span class="text-xs text-brand-accent font-bold uppercase">Recomendada (+30%):</span>
-                            <span id="res-tarifa-rec" class="text-lg font-black text-brand-accent">0 €/h</span>
-                        </div>
-                        <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-200 flex justify-between items-center">
-                            <span class="text-xs text-brand-success font-bold">Premium (Valor alto):</span>
-                            <span id="res-tarifa-pre" class="font-bold text-brand-success">0 €/h</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                    <h3 class="text-lg font-bold flex items-center space-x-2"><span>💼</span><span>Rentabilidad Proyecto</span></h3>
-                    <div class="space-y-3">
-                        <input type="number" id="proy-presupuesto" placeholder="Presupuesto a cobrar (€)" class="w-full border rounded-lg px-3 py-2 text-sm">
-                        <input type="number" id="proy-materiales" placeholder="Coste de materiales/terceros (€)" class="w-full border rounded-lg px-3 py-2 text-sm">
-                        <input type="number" id="proy-horas" placeholder="Horas estimadas a invertir" class="w-full border rounded-lg px-3 py-2 text-sm">
-                        <button onclick="ejecutarRentabilidad()" class="w-full bg-brand-dark hover:bg-gray-800 text-white font-bold py-2 rounded-lg text-sm transition">Analizar Proyecto</button>
-                    </div>
-                    <div id="proy-resultado" class="hidden mt-4 p-4 rounded-xl border space-y-2">
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-500">Margen comercial:</span>
-                            <span id="proy-res-margen" class="font-bold">0%</span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-500">Valor real por hora:</span>
-                            <span id="proy-res-ph" class="font-bold">0 €/h</span>
-                        </div>
-                        <p id="proy-res-veredicto" class="text-xs font-bold text-center uppercase pt-2"></p>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                    <h3 class="text-lg font-bold flex items-center space-x-2"><span>📉</span><span>Impacto Fiscal de Gasto</span></h3>
-                    <div class="space-y-3">
-                        <input type="number" id="imp-gasto" placeholder="Total pagado por la compra (€)" class="w-full border rounded-lg px-3 py-2 text-sm">
-                        <select id="imp-iva" class="w-full border rounded-lg px-3 py-2 text-sm">
-                            <option value="0.21">IVA 21%</option>
-                            <option value="0.10">IVA 10%</option>
-                            <option value="0.04">IVA 4%</option>
-                        </select>
-                        <button onclick="ejecutarImpactoFiscal()" class="w-full bg-brand-dark hover:bg-gray-800 text-white font-bold py-2 rounded-lg text-sm transition">Calcular Coste Real</button>
-                    </div>
-                    <div id="imp-resultado" class="hidden mt-4 bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-2">
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-500 text-xs">Ahorro en IVA:</span>
-                            <span id="res-imp-iva" class="font-bold text-brand-success">0 €</span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-500 text-xs">Ahorro IRPF (Aprox):</span>
-                            <span id="res-imp-irpf" class="font-bold text-brand-success">0 €</span>
-                        </div>
-                        <hr class="border-gray-200">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold text-gray-700 uppercase">Coste Real para ti:</span>
-                            <span id="res-imp-real" class="font-black text-brand-dark text-lg">0 €</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- AYUDAS -->
-        <section id="view-ayudas" class="view-section space-y-8">
-            <div class="border-b pb-4 border-gray-200 flex flex-col md:flex-row md:items-end md:justify-between">
-                <div>
-                    <h1 class="text-3xl font-bold tracking-tight text-brand-dark">Mis Ayudas y Subvenciones</h1>
-                    <p class="text-gray-500 text-sm mt-1">URLs directas a cada convocatoria oficial.</p>
-                </div>
-                <span id="ayudas-counter" class="text-sm font-semibold text-brand-accent mt-2 md:mt-0"></span>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Tu perfil de autónomo</p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-500 mb-1">Comunidad Autónoma</label>
-                        <select id="profile-comunidad" onchange="actualizarPerfil()" class="w-full border rounded-lg px-3 py-2 text-sm font-medium">
-                            <option value="Murcia">Región de Murcia</option>
-                            <option value="Madrid">Comunidad de Madrid</option>
-                            <option value="Andalucia">Andalucía</option>
-                            <option value="Cataluña">Cataluña</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-500 mb-1">Sector de actividad</label>
-                        <select id="profile-sector" onchange="actualizarPerfil()" class="w-full border rounded-lg px-3 py-2 text-sm font-medium">
-                            <option value="Tecnológico">Tecnológico / Digital</option>
-                            <option value="Comercio">Comercio al por menor</option>
-                            <option value="Hostelería">Hostelería y Turismo</option>
-                            <option value="Construcción">Construcción y Reformas</option>
-                            <option value="Transporte">Transporte y Logística</option>
-                            <option value="Cualquiera">Cualquier Sector / Otros</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-500 mb-1">Antigüedad en el RETA</label>
-                        <select id="profile-antiguedad" onchange="actualizarPerfil()" class="w-full border rounded-lg px-3 py-2 text-sm font-medium">
-                            <option value="0">Alta Nueva (Menos de 1 año)</option>
-                            <option value="12">Consolidado (Más de 1 año)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex flex-wrap gap-2 text-[10px] font-semibold">
-                <span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">● Subvención directa</span>
-                <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full">● Bonificación de cuota</span>
-                <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full">● Bono / Cupón</span>
-                <span class="bg-amber-100 text-amber-700 px-2 py-1 rounded-full">● Subvención + Inversión</span>
-            </div>
-
-            <div id="ayudas-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
         </section>
 
     </main>
