@@ -318,8 +318,8 @@ function switchView(viewId) {
     ['dashboard', 'calculadora', 'ayudas'].forEach(btn => {
         const el = document.getElementById(`nav-${btn}`);
         el.className = btn === viewId
-            ? 'w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left bg-brand-accent text-white font-medium transition'
-            : 'w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left hover:bg-gray-800 text-gray-400 hover:text-white transition';
+            ? 'nav-active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-colors'
+            : 'nav-inactive w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-colors';
     });
 }
 
@@ -407,28 +407,28 @@ function actualizarUI() {
 
     [...state.transacciones].forEach(t => {
         const tr = document.createElement('tr');
-        tr.className = 'border-b border-slate-50 hover:bg-slate-50/50 transition-colors';
+        tr.className = 'border-b border-brand-border hover:bg-slate-50/60 transition-colors';
         const ivaTotal = t.base * t.ivaPct;
         const esCobrado = t.estado === 'cobrada' || t.estado === 'pagado';
         const tipoBadge = t.tipo === 'ingreso'
-            ? '<span class="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-full">↑ Ingreso</span>'
-            : '<span class="inline-flex items-center gap-1 text-[10px] font-bold bg-red-50 text-red-500 border border-red-100 px-2 py-0.5 rounded-full">↓ Gasto</span>';
+            ? '<span class="inline-flex items-center text-[10px] font-semibold bg-emerald-50 text-green-700 border border-emerald-100 px-2 py-0.5 rounded-full">↑ Ingreso</span>'
+            : '<span class="inline-flex items-center text-[10px] font-semibold bg-red-50 text-red-700 border border-red-100 px-2 py-0.5 rounded-full">↓ Gasto</span>';
         const estadoBadge = esCobrado
-            ? '<span class="inline-flex items-center gap-1 text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">✓ Cobrado</span>'
-            : '<span class="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100 px-2 py-0.5 rounded-full">⏳ Pendiente</span>';
+            ? '<span class="inline-flex items-center text-[10px] font-semibold bg-slate-100 text-brand-muted px-2 py-0.5 rounded-full">✓ Cobrado</span>'
+            : '<span class="inline-flex items-center text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded-full">⏳ Pendiente</span>';
         tr.innerHTML = `
-            <td class="px-6 py-3.5 text-xs text-slate-400 font-medium tabular-nums">${t.fecha}</td>
-            <td class="px-6 py-3.5 font-semibold text-slate-800 text-sm">${t.concepto}</td>
-            <td class="px-6 py-3.5">${tipoBadge}</td>
-            <td class="px-6 py-3.5 text-right text-sm font-bold tabular-nums text-slate-800">${t.base.toFixed(2)} €</td>
-            <td class="px-6 py-3.5 text-right text-xs text-slate-400 tabular-nums">${ivaTotal.toFixed(2)} €</td>
-            <td class="px-6 py-3.5 text-center">${estadoBadge}</td>
+            <td class="px-6 py-4 text-xs text-brand-muted font-medium tabnum">${t.fecha}</td>
+            <td class="px-6 py-4 font-medium text-brand-text text-sm">${t.concepto}</td>
+            <td class="px-6 py-4">${tipoBadge}</td>
+            <td class="px-6 py-4 text-right text-sm font-semibold tabnum text-brand-text">${t.base.toFixed(2)} €</td>
+            <td class="px-6 py-4 text-right text-xs text-brand-muted tabnum">${ivaTotal.toFixed(2)} €</td>
+            <td class="px-6 py-4 text-center">${estadoBadge}</td>
         `;
         listaDom.appendChild(tr);
     });
 
     if (state.transacciones.length === 0) {
-        listaDom.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-sm">Sin movimientos registrados. Añade tu primera factura.</td></tr>`;
+        listaDom.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-brand-muted text-sm">Sin movimientos registrados. Añade tu primera factura.</td></tr>`;
     }
 
     // Alertas
@@ -446,12 +446,12 @@ function actualizarUI() {
         isDanger = true;
     }
     if (!isDanger && !isWarning) {
-        panelAlertas.innerHTML = `<div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-start gap-3"><span>✅</span><div><p class="text-xs font-bold text-emerald-800">Todo en orden</p><p class="text-[11px] text-emerald-700 mt-0.5">Tu provisión fiscal está cubierta por tus cobros.</p></div></div>`;
-        indicadorSalud.innerHTML = `<div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div><span class="text-[11px] font-bold text-emerald-600">ÓPTIMO</span>`;
+        panelAlertas.innerHTML = `<div class="bg-white border border-brand-border rounded-xl p-4 flex items-start gap-3 shadow-card"><span class="text-sm">✅</span><div><p class="text-xs font-semibold text-brand-text">Todo en orden</p><p class="text-[11px] text-brand-muted mt-0.5">Tu provisión fiscal está cubierta por tus cobros.</p></div></div>`;
+        indicadorSalud.innerHTML = `<div class="w-2 h-2 bg-brand-success rounded-full animate-pulse"></div><span class="text-[11px] font-semibold text-brand-success">Óptimo</span>`;
     } else if (isDanger) {
-        indicadorSalud.innerHTML = `<div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div><span class="text-[11px] font-bold text-red-600">RIESGO ALTO</span>`;
+        indicadorSalud.innerHTML = `<div class="w-2 h-2 bg-brand-danger rounded-full animate-pulse"></div><span class="text-[11px] font-semibold text-brand-danger">Riesgo alto</span>`;
     } else {
-        indicadorSalud.innerHTML = `<div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div><span class="text-[11px] font-bold text-amber-600">PRECAUCIÓN</span>`;
+        indicadorSalud.innerHTML = `<div class="w-2 h-2 bg-brand-warning rounded-full animate-pulse"></div><span class="text-[11px] font-semibold text-brand-warning">Precaución</span>`;
     }
 
     matchAyudas();
