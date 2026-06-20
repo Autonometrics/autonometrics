@@ -281,7 +281,15 @@ function traducirError(msg) {
 }
 
 async function signOut() {
-    await sb.auth.signOut();
+    try {
+        await sb.auth.signOut();
+    } catch (e) {
+        console.error('Error signOut:', e);
+    }
+    // Limpieza manual por si Supabase falla
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('sb-')) localStorage.removeItem(key);
+    });
     window.location.reload();
 }
 
