@@ -157,6 +157,9 @@ let state = {
 let currentUser = null;
 const IRPF_FACTOR = 0.19;
 
+// Variables accesibles para modal de liquidación trimestral
+let _ivaCobrado = 0, _ivaPagado = 0, _netoLiq = 0, _irpfLiq = 0;
+
 // ═══════════════════════════════════════════════════════
 // AUTH — Escuchar cambios de sesión
 // ═══════════════════════════════════════════════════════
@@ -225,6 +228,18 @@ async function cargarDatosUsuario() {
 // INICIALIZACIÓN DOM
 // ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
+    // Trimestre actual en el header
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+    const trimNum = month < 3 ? 1 : month < 6 ? 2 : month < 9 ? 3 : 4;
+    const el = document.getElementById('cuarto-actual');
+    if (el) el.textContent = `${trimNum}T ${year}`;
+
+    // Inicial del usuario en sidebar
+    const initEl = document.getElementById('user-initial');
+    if (initEl && currentUser?.email) initEl.textContent = currentUser.email[0].toUpperCase();
+
     // Fechas por defecto en formularios
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('ingreso-fecha').value = today;
@@ -332,10 +347,18 @@ async function limpiarTransacciones() {
 // ═══════════════════════════════════════════════════════
 function actualizarUI() {
     const badge = document.getElementById('plan-badge');
-    badge.innerText = state.isPremium ? 'PRO ACTIVADO' : 'GRATIS';
+    badge.innerText = state.isPremium ? '✦ PRO ACTIVADO' : 'GRATIS';
     badge.className = state.isPremium
-        ? 'text-xs bg-brand-success text-white px-2 py-0.5 rounded-full font-bold mb-3 inline-block'
-        : 'text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full font-bold mb-3 inline-block';
+        ? 'text-[10px] bg-brand-success text-white px-2.5 py-1 rounded-full font-bold inline-block uppercase tracking-wider'
+        : 'text-[10px] bg-white/10 text-slate-400 px-2.5 py-1 rounded-full font-bold inline-block uppercase tracking-wider';
+
+    // Ocultar botón PRO si ya es premium
+    const btnPlan = document.getElementById('btn-toggle-plan');
+    if (btnPlan) btnPlan.style.display = state.isPremium ? 'none' : 'block';
+
+    // Inicial del avatar
+    const initEl = document.getElementById('user-initial');
+    if (initEl && currentUser?.email) initEl.textContent = currentUser.email[0].toUpperCase();
 
     let ingresosTotal = 0, gastosTotal = 0, ivaCobrado = 0, ivaPagado = 0;
     let facturasPendientes = 0, dineroPendiente = 0;
@@ -356,6 +379,12 @@ function actualizarUI() {
     const neto = Math.max(0, ingresosTotal - gastosTotal);
     const irpf = neto * IRPF_FACTOR;
     const hucha = ivaLiquidacion + irpf;
+
+    // Guardar para modal de liquidación
+    _ivaCobrado = ivaCobrado;
+    _ivaPagado = ivaPagado;
+    _netoLiq = neto;
+    _irpfLiq = irpf;
 
     document.getElementById('txt-total-ingresos').innerText = `${ingresosTotal.toFixed(2)} €`;
     document.getElementById('txt-total-gastos').innerText = `${gastosTotal.toFixed(2)} €`;
@@ -378,23 +407,28 @@ function actualizarUI() {
 
     [...state.transacciones].forEach(t => {
         const tr = document.createElement('tr');
-        tr.className = 'border-b border-gray-100 hover:bg-gray-50 transition';
-        const tipoColor = t.tipo === 'ingreso' ? 'text-brand-success' : 'text-brand-danger';
-        const iconoEstado = t.estado === 'cobrada' || t.estado === 'pagado' ? '✅' : '⏳';
+        tr.className = 'border-b border-slate-50 hover:bg-slate-50/50 transition-colors';
         const ivaTotal = t.base * t.ivaPct;
+        const esCobrado = t.estado === 'cobrada' || t.estado === 'pagado';
+        const tipoBadge = t.tipo === 'ingreso'
+            ? '<span class="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-full">↑ Ingreso</span>'
+            : '<span class="inline-flex items-center gap-1 text-[10px] font-bold bg-red-50 text-red-500 border border-red-100 px-2 py-0.5 rounded-full">↓ Gasto</span>';
+        const estadoBadge = esCobrado
+            ? '<span class="inline-flex items-center gap-1 text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">✓ Cobrado</span>'
+            : '<span class="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100 px-2 py-0.5 rounded-full">⏳ Pendiente</span>';
         tr.innerHTML = `
-            <td class="py-3 text-gray-500">${t.fecha}</td>
-            <td class="py-3 font-semibold text-gray-800">${t.concepto}</td>
-            <td class="py-3 capitalize font-bold ${tipoColor}">${t.tipo}</td>
-            <td class="py-3">${t.base.toFixed(2)} €</td>
-            <td class="py-3 text-gray-500">${ivaTotal.toFixed(2)} €</td>
-            <td class="py-3 capitalize text-xs bg-gray-50 rounded px-2">${iconoEstado} ${t.estado}</td>
+            <td class="px-6 py-3.5 text-xs text-slate-400 font-medium tabular-nums">${t.fecha}</td>
+            <td class="px-6 py-3.5 font-semibold text-slate-800 text-sm">${t.concepto}</td>
+            <td class="px-6 py-3.5">${tipoBadge}</td>
+            <td class="px-6 py-3.5 text-right text-sm font-bold tabular-nums text-slate-800">${t.base.toFixed(2)} €</td>
+            <td class="px-6 py-3.5 text-right text-xs text-slate-400 tabular-nums">${ivaTotal.toFixed(2)} €</td>
+            <td class="px-6 py-3.5 text-center">${estadoBadge}</td>
         `;
         listaDom.appendChild(tr);
     });
 
     if (state.transacciones.length === 0) {
-        listaDom.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-gray-400 italic">No hay movimientos registrados.</td></tr>`;
+        listaDom.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-sm">Sin movimientos registrados. Añade tu primera factura.</td></tr>`;
     }
 
     // Alertas
@@ -404,20 +438,20 @@ function actualizarUI() {
     let isDanger = false, isWarning = false;
 
     if (facturasPendientes > 0) {
-        panelAlertas.innerHTML += `<div class="bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-start space-x-3"><span class="text-amber-500">⚠️</span><div><p class="text-xs font-bold text-amber-800">Facturas impagadas</p><p class="text-[11px] text-amber-700">Tienes ${facturasPendientes} facturas (${dineroPendiente.toFixed(2)}€) pendientes.</p></div></div>`;
+        panelAlertas.innerHTML += `<div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-start gap-3"><span>⚠️</span><div><p class="text-xs font-bold text-amber-800">Facturas impagadas</p><p class="text-[11px] text-amber-700 mt-0.5">Tienes ${facturasPendientes} facturas por cobrar (${dineroPendiente.toFixed(2)} €).</p></div></div>`;
         isWarning = true;
     }
     if (ivaLiquidacion > (ingresosTotal - dineroPendiente) * 0.5) {
-        panelAlertas.innerHTML += `<div class="bg-red-50 border border-red-200 p-3 rounded-lg flex items-start space-x-3"><span class="text-red-500">🚨</span><div><p class="text-xs font-bold text-red-800">Líquido Crítico</p><p class="text-[11px] text-red-700">Tus impuestos superan tu liquidez. Evita grandes gastos.</p></div></div>`;
+        panelAlertas.innerHTML += `<div class="bg-red-50 border border-red-200 p-4 rounded-xl flex items-start gap-3"><span>🚨</span><div><p class="text-xs font-bold text-red-800">Liquidez crítica</p><p class="text-[11px] text-red-700 mt-0.5">Tus impuestos superan tu liquidez disponible. Evita gastos grandes.</p></div></div>`;
         isDanger = true;
     }
     if (!isDanger && !isWarning) {
-        panelAlertas.innerHTML = `<div class="bg-emerald-50 border border-emerald-200 p-3 rounded-lg flex items-start space-x-3"><span class="text-emerald-500">✅</span><div><p class="text-xs font-bold text-emerald-800">Todo en orden</p><p class="text-[11px] text-emerald-700">Tu provisión fiscal está cubierta por tus cobros.</p></div></div>`;
-        indicadorSalud.innerHTML = `<div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div><span class="text-xs font-bold text-emerald-600">ÓPTIMO</span>`;
+        panelAlertas.innerHTML = `<div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-start gap-3"><span>✅</span><div><p class="text-xs font-bold text-emerald-800">Todo en orden</p><p class="text-[11px] text-emerald-700 mt-0.5">Tu provisión fiscal está cubierta por tus cobros.</p></div></div>`;
+        indicadorSalud.innerHTML = `<div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div><span class="text-[11px] font-bold text-emerald-600">ÓPTIMO</span>`;
     } else if (isDanger) {
-        indicadorSalud.innerHTML = `<div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div><span class="text-xs font-bold text-red-600">RIESGO ALTO</span>`;
+        indicadorSalud.innerHTML = `<div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div><span class="text-[11px] font-bold text-red-600">RIESGO ALTO</span>`;
     } else {
-        indicadorSalud.innerHTML = `<div class="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></div><span class="text-xs font-bold text-amber-600">PRECAUCIÓN</span>`;
+        indicadorSalud.innerHTML = `<div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div><span class="text-[11px] font-bold text-amber-600">PRECAUCIÓN</span>`;
     }
 
     matchAyudas();
@@ -544,6 +578,40 @@ function getTipoBadgeClass(tipo) {
     if (t.includes('subvención') || t.includes('subvencion')) return 'bg-emerald-100 text-emerald-700';
     if (t.includes('inversión') || t.includes('inversion')) return 'bg-amber-100 text-amber-700';
     return 'bg-gray-100 text-gray-500';
+}
+
+// ═══════════════════════════════════════════════════════
+// DECLARACIÓN TRIMESTRAL — Modal
+// ═══════════════════════════════════════════════════════
+function mostrarLiquidacion() {
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+    let trimNum, periodo, plazo;
+    if (month <= 2)      { trimNum = 1; periodo = `1 enero – 31 marzo ${year}`;       plazo = `20 de abril de ${year}`; }
+    else if (month <= 5) { trimNum = 2; periodo = `1 abril – 30 junio ${year}`;       plazo = `20 de julio de ${year}`; }
+    else if (month <= 8) { trimNum = 3; periodo = `1 julio – 30 septiembre ${year}`;  plazo = `20 de octubre de ${year}`; }
+    else                 { trimNum = 4; periodo = `1 octubre – 31 diciembre ${year}`; plazo = `20 de enero de ${year + 1}`; }
+
+    const ivaAPagar = Math.max(0, _ivaCobrado - _ivaPagado);
+    const total = ivaAPagar + _irpfLiq;
+
+    document.getElementById('liq-title').textContent = `${trimNum}T ${year}`;
+    document.getElementById('liq-periodo').textContent = periodo;
+    document.getElementById('liq-plazo').textContent = plazo;
+    document.getElementById('liq-iva-cobrado').textContent = `${_ivaCobrado.toFixed(2)} €`;
+    document.getElementById('liq-iva-pagado').textContent = `−${_ivaPagado.toFixed(2)} €`;
+    document.getElementById('liq-iva-pagar').textContent = `${ivaAPagar.toFixed(2)} €`;
+    document.getElementById('liq-base').textContent = `${_netoLiq.toFixed(2)} €`;
+    document.getElementById('liq-irpf-pagar').textContent = `${_irpfLiq.toFixed(2)} €`;
+    document.getElementById('liq-irpf-total').textContent = `${_irpfLiq.toFixed(2)} €`;
+    document.getElementById('liq-total').textContent = `${total.toFixed(2)} €`;
+
+    document.getElementById('modal-liquidacion').classList.remove('hidden');
+}
+
+function cerrarLiquidacion() {
+    document.getElementById('modal-liquidacion').classList.add('hidden');
 }
 
 function matchAyudas() {
