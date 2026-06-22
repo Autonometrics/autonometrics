@@ -13,7 +13,6 @@ module.exports = async function handler(req, res) {
 
     const sig = req.headers['stripe-signature'];
 
-    // Leer body en bruto para verificar firma de Stripe
     const chunks = [];
     for await (const chunk of req) {
         chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
@@ -34,31 +33,88 @@ module.exports = async function handler(req, res) {
 
     console.log('✅ Evento recibido:', event.type);
 
+    // ── Pago completado → activar PRO ──────────────────────────────────────
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
         const userId = session.client_reference_id;
+        const customerId = session.customer;
 
-        console.log('👤 client_reference_id:', userId);
-        console.log('🔑 SUPABASE_URL:', process.env.SUPABASE_URL ? 'OK' : 'FALTA');
-        console.log('🔑 SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'OK' : 'FALTA');
+        console.log('👤 user_id:', userId, '| customer_id:', customerId);
 
         if (!userId) {
-            console.error('❌ No se recibió client_reference_id');
+            console.error('❌ Sin client_reference_id');
             return res.status(200).json({ received: true, warning: 'Sin user ID' });
         }
 
-        // Upsert para asegurar que la fila exista aunque el trigger no la creara
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('profiles')
-            .upsert({ id: userId, is_premium: true }, { onConflict: 'id' })
-            .select();
+            .upsert(
+                { id: userId, is_premium: true, stripe_customer_id: customerId },
+                { onConflict: 'id' }
+            );
 
         if (error) {
-            console.error('❌ Error Supabase completo:', JSON.stringify(error));
-            return res.status(500).json({ error: error.message, details: error });
+            console.error('❌ Error activando PRO:', JSON.stringify(error));
+            return res.status(500).json({ error: error.message });
         }
 
-        console.log('🎉 PRO activado para:', userId, '| Resultado:', JSON.stringify(data));
+        console.log('🎉 PRO activado para:', userId);
+    }
+
+    // ── Suscripción cancelada → desactivar PRO ─────────────────────────────
+    if (event.type === 'customer.subscription.deleted') {
+        const subscription = event.data.object;
+        const customerId = subscription.customer;
+
+        console.log('🔴 Suscripción cancelada para customer:', customerId);
+
+        const { data: profiles, error: findError } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('stripe_customer_id', customerId)
+            .limit(1);
+
+        if (findError || !profiles?.length) {
+            console.error('❌ No se encontró usuario para customer:', customerId);
+            return res.status(200).json({ received: true, warning: 'Usuario no encontrado' });
+        }
+
+        const userId = profiles[0].id;
+
+        const { error } = await supabase
+            .from('profiles')
+            .update({ is_premium: false })
+            .eq('id', userId);
+
+        if (error) {
+            console.error('❌ Error desactivando PRO:', JSON.stringify(error));
+            return res.status(500).json({ error: error.message });
+        }
+
+        console.log('🔒 PRO desactivado para:', userId);
+    }
+
+    // ── Pago fallido → desactivar PRO ──────────────────────────────────────
+    if (event.type === 'invoice.payment_failed') {
+        const invoice = event.data.object;
+        const customerId = invoice.customer;
+
+        console.log('⚠️ Pago fallido para customer:', customerId);
+
+        const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('stripe_customer_id', customerId)
+            .limit(1);
+
+        if (profiles?.length) {
+            await supabase
+                .from('profiles')
+                .update({ is_premium: false })
+                .eq('id', profiles[0].id);
+
+            console.log('🔒 PRO desactivado por pago fallido para:', profiles[0].id);
+        }
     }
 
     return res.status(200).json({ received: true });
