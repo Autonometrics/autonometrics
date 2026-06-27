@@ -908,24 +908,50 @@ function matchAyudas() {
                     </div>
                 </div>`;
         } else {
+            // Free tier: datos reales borrosos + overlay con CTA
             card.innerHTML = `
                 <div class="space-y-3">
+                    <!-- Cabecera visible: categoría y match son reales y legibles -->
                     <div class="flex justify-between items-start">
-                        <div class="flex flex-col space-y-1">
-                            <span class="bg-gray-100 text-gray-500 font-bold text-[10px] px-2 py-1 rounded uppercase tracking-wider">${ayuda.categoria} | ${ayuda.comunidad}</span>
-                            <span class="bg-gray-100 text-gray-400 font-semibold text-[10px] px-2 py-0.5 rounded-full w-fit blur-[2px]">${ayuda.tipo}</span>
-                        </div>
-                        <div class="text-right ml-2 shrink-0">
-                            <span class="${matchColor} font-black text-lg block leading-none blur-[2px]">${matchScore}%</span>
-                            <span class="text-[10px] text-gray-400 font-medium">MATCH</span>
+                        <span class="bg-gray-100 text-gray-500 font-bold text-[10px] px-2 py-1 rounded uppercase tracking-wider">${ayuda.categoria} · ${ayuda.comunidad}</span>
+                        <div class="text-right shrink-0 ml-2">
+                            <span class="${matchColor} font-black text-lg block leading-none">${matchScore}%</span>
+                            <span class="text-[10px] text-gray-400">MATCH</span>
                         </div>
                     </div>
-                    <h4 class="text-md font-bold text-gray-700 flex items-center space-x-2">🔒 <span>${ayuda.nombre}</span></h4>
-                    <p class="text-xs text-gray-400 line-clamp-2 blur-[2px]">${ayuda.descripcion}</p>
-                    <div class="bg-gray-50 p-3 rounded-xl border border-dashed border-gray-300 text-center mt-4">
-                        <p class="text-[10px] text-gray-500 font-medium mb-1">Importe, plazo, documentación y enlace directo a la convocatoria</p>
-                        <p class="text-[10px] text-gray-400 mb-3">disponibles en el plan PRO.</p>
-                        <button onclick="togglePremiumPlan()" class="w-full text-xs bg-brand-dark hover:bg-black text-white font-bold py-2 rounded-lg transition">Desbloquear Guía PRO</button>
+                    <!-- Contenido real borroso + capa de desbloqueo -->
+                    <div class="relative rounded-xl overflow-hidden">
+                        <div class="blur-[5px] select-none pointer-events-none space-y-2 p-4 bg-gray-50 border border-gray-100 rounded-xl">
+                            <span class="${tipoBadgeClass} font-semibold text-[10px] px-2 py-0.5 rounded-full inline-block">${ayuda.tipo}</span>
+                            <h4 class="text-sm font-bold text-gray-800 leading-snug">${ayuda.nombre}</h4>
+                            <p class="text-xs text-gray-600 leading-relaxed">${ayuda.descripcion}</p>
+                            <div class="pt-2 border-t border-gray-200 space-y-1">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-gray-500">Importe máximo</span>
+                                    <span class="font-bold text-green-700">${ayuda.monto}</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-gray-500">Plazo</span>
+                                    <span class="font-semibold text-orange-600">${ayuda.fechaLimite}</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-gray-500">Dificultad</span>
+                                    <span class="font-semibold">${ayuda.dificultad}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Capa frosted glass con CTA -->
+                        <div class="absolute inset-0 flex items-center justify-center rounded-xl" style="background: rgba(255,255,255,0.72); backdrop-filter: blur(2px);">
+                            <div class="text-center px-4">
+                                <span class="text-2xl block mb-2">🔒</span>
+                                <p class="text-xs font-bold text-brand-text mb-0.5">Contenido PRO</p>
+                                <p class="text-[11px] text-brand-muted mb-3">Importe, plazo, docs y enlace oficial</p>
+                                <button onclick="togglePremiumPlan()"
+                                    class="text-xs bg-brand-accent hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg transition">
+                                    Activar PRO · 4,99 €/mes
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>`;
         }
