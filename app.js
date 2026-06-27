@@ -171,6 +171,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
         document.getElementById('user-info').classList.remove('hidden');
         await cargarDatosUsuario();
         actualizarUI();
+        verificarPagoExitoso(); // detectar retorno desde Stripe
     } else {
         currentUser = null;
         state.transacciones = [];
@@ -295,17 +296,15 @@ function traducirError(msg) {
     return 'Error inesperado. Inténtalo de nuevo.';
 }
 
-async function signOut() {
-    try {
-        await sb.auth.signOut();
-    } catch (e) {
-        console.error('Error signOut:', e);
-    }
-    // Limpieza manual por si Supabase falla
+function signOut() {
+    // Limpiar sesión localmente sin esperar a Supabase
     Object.keys(localStorage).forEach(key => {
         if (key.startsWith('sb-')) localStorage.removeItem(key);
     });
-    window.location.reload();
+    // Intentar avisar a Supabase (sin bloquear)
+    try { sb.auth.signOut(); } catch (e) {}
+    // Recargar tras breve pausa
+    setTimeout(() => window.location.reload(), 200);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -612,6 +611,60 @@ function mostrarLiquidacion() {
 
 function cerrarLiquidacion() {
     document.getElementById('modal-liquidacion').classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════════════════
+// POST-PAGO — Detectar retorno desde Stripe y activar PRO
+// ═══════════════════════════════════════════════════════
+function mostrarToast(mensaje, tipo = 'info') {
+    const colores = { success: '#0C7C4A', warning: '#B45309', info: '#0A2540' };
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position:fixed; bottom:24px; right:24px; z-index:9999;
+        background:${colores[tipo] || colores.info}; color:white;
+        font-size:14px; font-weight:500; padding:12px 20px;
+        border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.2);
+        max-width:320px; line-height:1.4;
+    `;
+    toast.textContent = mensaje;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 6000);
+}
+
+async function verificarPagoExitoso() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') !== 'success') return;
+
+    // Limpiar ?payment=success de la URL sin recargar
+    window.history.replaceState({}, '', window.location.pathname);
+
+    // Si ya es PRO (webhook llegó antes), mostrar confirmación directa
+    if (state.isPremium) {
+        mostrarToast('¡Bienvenido/a a PRO! 🎉 Ya tienes acceso completo.', 'success');
+        return;
+    }
+
+    // Polling: esperar hasta 10s a que el webhook procese
+    mostrarToast('Verificando tu suscripción PRO...', 'info');
+    let intentos = 0;
+    const poll = setInterval(async () => {
+        intentos++;
+        const { data: profile } = await sb
+            .from('profiles')
+            .select('is_premium')
+            .eq('id', currentUser.id)
+            .single();
+
+        if (profile?.is_premium) {
+            clearInterval(poll);
+            state.isPremium = true;
+            actualizarUI();
+            mostrarToast('¡Bienvenido/a a PRO! 🎉 Ya tienes acceso completo.', 'success');
+        } else if (intentos >= 5) {
+            clearInterval(poll);
+            mostrarToast('Pago recibido. Si el plan no se actualiza en unos segundos, recarga la página.', 'warning');
+        }
+    }, 2000);
 }
 
 function matchAyudas() {
