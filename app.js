@@ -329,6 +329,7 @@ let state = {
 };
 
 let currentUser = null;
+let guestMode = false; // Modo exploración sin registro
 const IRPF_FACTOR = 0.19;
 
 // Variables accesibles para modal de liquidación trimestral
@@ -339,10 +340,12 @@ let _ivaCobrado = 0, _ivaPagado = 0, _netoLiq = 0, _irpfLiq = 0;
 // ═══════════════════════════════════════════════════════
 sb.auth.onAuthStateChange(async (event, session) => {
     if (session?.user) {
+        guestMode = false;
         currentUser = session.user;
         document.getElementById('auth-modal').classList.add('hidden');
         document.getElementById('user-email').textContent = session.user.email;
         document.getElementById('user-info').classList.remove('hidden');
+        document.getElementById('guest-info').classList.add('hidden');
         await cargarDatosUsuario();
         actualizarUI();
         verificarPagoExitoso(); // detectar retorno desde Stripe
@@ -351,10 +354,21 @@ sb.auth.onAuthStateChange(async (event, session) => {
         state.transacciones = [];
         state.isPremium = false;
         state.perfil = { comunidad: "Murcia", sector: "Tecnológico", antiguedad: "0" };
-        document.getElementById('auth-modal').classList.remove('hidden');
+        // No bloquear con modal — permitir exploración libre
         document.getElementById('user-info').classList.add('hidden');
+        document.getElementById('guest-info').classList.remove('hidden');
+        guestMode = true;
+        actualizarUI();
     }
 });
+
+// Activar modo exploración (llamado desde el botón del modal)
+function enableGuestMode() {
+    document.getElementById('auth-modal').classList.add('hidden');
+    guestMode = true;
+    actualizarUI();
+    matchAyudas();
+}
 
 // ═══════════════════════════════════════════════════════
 // CARGA DE DATOS DESDE SUPABASE
@@ -497,19 +511,23 @@ function switchView(viewId) {
 }
 
 async function togglePremiumPlan() {
-    if (!currentUser) return;
+    if (guestMode || !currentUser) {
+        // Primero hay que tener cuenta
+        document.getElementById('auth-modal').classList.remove('hidden');
+        return;
+    }
     if (state.isPremium) return; // Ya es PRO, no hacer nada
 
     // Redirigir a Stripe con el ID del usuario como referencia
-    // Stripe llamará al webhook cuando el pago se complete y activará PRO automáticamente
     const PAYMENT_LINK = 'https://buy.stripe.com/test_fZu7sN6WD7Nvcji5a0cQU00';
     window.location.href = `${PAYMENT_LINK}?client_reference_id=${currentUser.id}`;
 }
 
 async function limpiarTransacciones() {
-    if (!currentUser) return;
     if (confirm('⚠️ ¿Estás seguro de que quieres eliminar todos tus movimientos? Esta acción no se puede deshacer.')) {
-        await sb.from('transactions').delete().eq('user_id', currentUser.id);
+        if (!guestMode && currentUser) {
+            await sb.from('transactions').delete().eq('user_id', currentUser.id);
+        }
         state.transacciones = [];
         actualizarUI();
     }
@@ -520,10 +538,20 @@ async function limpiarTransacciones() {
 // ═══════════════════════════════════════════════════════
 function actualizarUI() {
     const badge = document.getElementById('plan-badge');
-    badge.innerText = state.isPremium ? '✦ PRO ACTIVADO' : 'GRATIS';
-    badge.className = state.isPremium
-        ? 'text-[10px] bg-brand-success text-white px-2.5 py-1 rounded-full font-bold inline-block uppercase tracking-wider'
-        : 'text-[10px] bg-brand-bg text-brand-muted border border-brand-border px-2.5 py-1 rounded-full font-bold inline-block uppercase tracking-wider';
+    if (guestMode) {
+        badge.innerText = 'EXPLORACIÓN';
+        badge.className = 'text-[10px] bg-blue-50 text-blue-500 border border-blue-200 px-2.5 py-1 rounded-full font-bold inline-block uppercase tracking-wider';
+    } else if (state.isPremium) {
+        badge.innerText = '✦ PRO ACTIVADO';
+        badge.className = 'text-[10px] bg-brand-success text-white px-2.5 py-1 rounded-full font-bold inline-block uppercase tracking-wider';
+    } else {
+        badge.innerText = 'GRATIS';
+        badge.className = 'text-[10px] bg-brand-bg text-brand-muted border border-brand-border px-2.5 py-1 rounded-full font-bold inline-block uppercase tracking-wider';
+    }
+
+    // Banner de modo exploración
+    const guestBanner = document.getElementById('guest-banner');
+    if (guestBanner) guestBanner.classList.toggle('hidden', !guestMode);
 
     // Ocultar botón PRO si ya es premium
     const btnPlan = document.getElementById('btn-toggle-plan');
@@ -635,18 +663,26 @@ function actualizarUI() {
 // ═══════════════════════════════════════════════════════
 async function addTransaction(e, tipo) {
     e.preventDefault();
+
+    const fecha = document.getElementById(`${tipo}-fecha`).value;
+    const concepto = document.getElementById(`${tipo}-concepto`).value;
+    const base = parseFloat(document.getElementById(`${tipo}-base`).value);
+    const iva_pct = parseFloat(document.getElementById(`${tipo}-iva`).value);
+    const estado = document.getElementById(`${tipo}-estado`).value;
+
+    if (guestMode) {
+        // Guardar solo en memoria (sin Supabase)
+        state.transacciones.unshift({ id: Date.now(), fecha, concepto, tipo, base, ivaPct: iva_pct, estado });
+        actualizarUI();
+        document.getElementById(`form-${tipo}`).reset();
+        document.getElementById(`${tipo}-fecha`).value = new Date().toISOString().split('T')[0];
+        mostrarToast('Añadido (solo en esta sesión). Regístrate gratis para guardar tus datos.', 'warning');
+        return;
+    }
+
     if (!currentUser) return;
 
-    const newT = {
-        user_id: currentUser.id,
-        fecha: document.getElementById(`${tipo}-fecha`).value,
-        concepto: document.getElementById(`${tipo}-concepto`).value,
-        tipo: tipo,
-        base: parseFloat(document.getElementById(`${tipo}-base`).value),
-        iva_pct: parseFloat(document.getElementById(`${tipo}-iva`).value),
-        estado: document.getElementById(`${tipo}-estado`).value
-    };
-
+    const newT = { user_id: currentUser.id, fecha, concepto, tipo, base, iva_pct, estado };
     const { data, error } = await sb.from('transactions').insert([newT]).select().single();
 
     if (!error && data) {
@@ -669,16 +705,17 @@ async function addTransaction(e, tipo) {
 // PERFIL — Guardar en Supabase
 // ═══════════════════════════════════════════════════════
 async function actualizarPerfil() {
-    if (!currentUser) return;
     state.perfil.comunidad = document.getElementById('profile-comunidad').value;
     state.perfil.sector = document.getElementById('profile-sector').value;
     state.perfil.antiguedad = document.getElementById('profile-antiguedad').value;
 
-    await sb.from('profiles').update({
-        comunidad: state.perfil.comunidad,
-        sector: state.perfil.sector,
-        antiguedad: state.perfil.antiguedad
-    }).eq('id', currentUser.id);
+    if (!guestMode && currentUser) {
+        await sb.from('profiles').update({
+            comunidad: state.perfil.comunidad,
+            sector: state.perfil.sector,
+            antiguedad: state.perfil.antiguedad
+        }).eq('id', currentUser.id);
+    }
 
     actualizarUI();
 }
@@ -868,7 +905,43 @@ function matchAyudas() {
         const card = document.createElement('div');
         card.className = 'bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between';
 
-        if (state.isPremium) {
+        if (guestMode) {
+            // Invitado: muestra que existen y cambian con el perfil, pero pide registro
+            card.innerHTML = `
+                <div class="space-y-3">
+                    <div class="flex justify-between items-start">
+                        <span class="bg-gray-100 text-gray-500 font-bold text-[10px] px-2 py-1 rounded uppercase tracking-wider">${ayuda.categoria} · ${ayuda.comunidad}</span>
+                        <div class="text-right shrink-0 ml-2">
+                            <span class="${matchColor} font-black text-lg block leading-none">${matchScore}%</span>
+                            <span class="text-[10px] text-gray-400">MATCH</span>
+                        </div>
+                    </div>
+                    <div class="relative rounded-xl overflow-hidden">
+                        <div class="blur-[5px] select-none pointer-events-none space-y-2 p-4 bg-gray-50 border border-gray-100 rounded-xl">
+                            <span class="${tipoBadgeClass} font-semibold text-[10px] px-2 py-0.5 rounded-full inline-block">${ayuda.tipo}</span>
+                            <h4 class="text-sm font-bold text-gray-800 leading-snug">${ayuda.nombre}</h4>
+                            <p class="text-xs text-gray-600 leading-relaxed">${ayuda.descripcion}</p>
+                            <div class="pt-2 border-t border-gray-200 space-y-1">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-gray-500">Importe máximo</span>
+                                    <span class="font-bold text-green-700">${ayuda.monto}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center rounded-xl" style="background: rgba(255,255,255,0.75); backdrop-filter: blur(2px);">
+                            <div class="text-center px-4">
+                                <span class="text-2xl block mb-2">👤</span>
+                                <p class="text-xs font-bold text-brand-text mb-0.5">Crea una cuenta gratis</p>
+                                <p class="text-[11px] text-brand-muted mb-3">Para ver las ayudas de tu perfil</p>
+                                <button onclick="document.getElementById('auth-modal').classList.remove('hidden')"
+                                    class="text-xs bg-brand-text hover:bg-black text-white font-semibold px-5 py-2 rounded-lg transition">
+                                    Registrarme gratis
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        } else if (state.isPremium) {
             const docsHTML = ayuda.documentos.map(d => `<li class="flex items-start space-x-1"><span class="text-brand-accent mt-0.5">•</span><span>${d}</span></li>`).join('');
             card.innerHTML = `
                 <div class="space-y-3">
