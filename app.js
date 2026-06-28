@@ -519,7 +519,7 @@ async function togglePremiumPlan() {
     if (state.isPremium) return; // Ya es PRO, no hacer nada
 
     // Redirigir a Stripe con el ID del usuario como referencia
-    const PAYMENT_LINK = 'https://buy.stripe.com/8x23cwaNk9rB5alaMVgw000';
+    const PAYMENT_LINK = 'https://buy.stripe.com/14AbJ23kSeLV32d4oxgw001';
     window.location.href = `${PAYMENT_LINK}?client_reference_id=${currentUser.id}`;
 }
 
