@@ -187,7 +187,7 @@ const ayudasDB = [
         requisitos: { sector: "Cualquiera", antiguedad: "12" },
         descripcion: "Convocatoria de 2 millones de euros del Ayuntamiento de Madrid para viabilidad de negocios autónomos consolidados y creación de empleo.",
         documentos: ["Plan de viabilidad del negocio (modelo BOCM)", "Alta IAE en Madrid", "Memoria de la actividad y empleo generado"],
-        monto: "Hasta 10.000 €", fechaLimite: "20 días desde publicación BOCM (junio 2026)", dificultad: "Media",
+        monto: "Hasta 10.000 €", fechaLimite: "⚠️ 23/07/2026 — ¡Plazo próximo!", dificultad: "Media",
         url: "https://www.comunidad.madrid/empleo/ayudas-personas-trabajadoras-autonomas-emprendedoras-entidades-economia-social"
     },
     {
@@ -214,9 +214,9 @@ const ayudasDB = [
         id: 22, nombre: "Inicio de Actividad Autónoma — Junta de Andalucía (Línea 2)", tipo: "Subvención directa",
         categoria: "Inicio de actividad", comunidad: "Andalucia",
         requisitos: { sector: "Cualquiera", antiguedad: "0" },
-        descripcion: "Ayuda directa para el inicio de actividad con cuantías diferenciadas por colectivo. Convocatoria 2025-2026 del Servicio Andaluz de Empleo.",
+        descripcion: "Ayuda directa para el inicio de actividad con cuantías diferenciadas por colectivo. Convocatoria 2025-2026 cerrada. Se espera nueva convocatoria en el 2º semestre de 2026.",
         documentos: ["Plan de viabilidad del negocio", "Alta en el RETA", "Certificado de empadronamiento en Andalucía"],
-        monto: "Hasta 5.000 €", fechaLimite: "30/06/2026", dificultad: "Alta",
+        monto: "Hasta 5.000 €", fechaLimite: "Convocatoria cerrada — próxima prevista 2º semestre 2026", dificultad: "Alta",
         url: "https://www.juntadeandalucia.es/organismos/empleoempresaytrabajoautonomo/areas/trabajo-autonomo/fomento-trabajo-autonomo/paginas/subv-fomento-inicio-actividad.html"
     },
     {
@@ -885,7 +885,7 @@ function matchAyudas() {
 
     const { comunidad: pComunidad, sector: pSector, antiguedad: pAntiguedad } = state.perfil;
 
-    const ayudasConScore = ayudasDB
+    const todasConScore = ayudasDB
         .filter(a => a.comunidad === 'Nacional' || a.comunidad === 'Europea' || a.comunidad === pComunidad)
         .map(ayuda => {
             let score = 0;
@@ -894,6 +894,11 @@ function matchAyudas() {
             return { ...ayuda, matchScore: Math.round((score / 2) * 100) };
         })
         .sort((a, b) => b.matchScore - a.matchScore);
+
+    // Mostrar solo 100% match + máximo 3 del 50%. Ocultar 0%.
+    const perfectas = todasConScore.filter(a => a.matchScore === 100);
+    const parciales = todasConScore.filter(a => a.matchScore === 50).slice(0, 3);
+    const ayudasConScore = [...perfectas, ...parciales];
 
     const counter = document.getElementById('ayudas-counter');
     if (counter) counter.innerText = `${ayudasConScore.length} ayuda${ayudasConScore.length !== 1 ? 's' : ''} encontrada${ayudasConScore.length !== 1 ? 's' : ''} para tu perfil`;
