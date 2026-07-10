@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de Ayudas y Subvenciones para Autónomos 2026 | AutonoMetrics</title>
+
+    <!-- SEO -->
+    <meta name="description" content="Encuentra las ayudas, subvenciones y bonificaciones para autónomos en España en 2026. Filtra por comunidad autónoma y sector. Actualizado julio 2026.">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="AutonoMetrics">
+    <meta name="keywords" content="ayudas autónomos 2026, subvenciones autónomos España, kit digital autónomos, tarifa plana autónomos, ayudas comunidad autónoma">
+    <link rel="canonical" href="https://autonometrics.vercel.app/ayudas.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://autonometrics.vercel.app/ayudas.html">
+    <meta property="og:title" content="Buscador de Ayudas para Autónomos 2026 | AutonoMetrics">
+    <meta property="og:description" content="32+ ayudas y subvenciones para autónomos en España. Filtra por comunidad y sector. Gratuito y actualizado.">
+    <meta property="og:image" content="https://autonometrics.vercel.app/og-image.png">
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-NMJBFKMB');</script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['-apple-system','BlinkMacSystemFont','SF Pro Display','Inter','system-ui','sans-serif'] },
+                    colors: {
+                        brand: {
+                            bg: '#F5F5F7', text: '#1D1D1F', border: '#D2D2D7',
+                            accent: '#0071E3', success: '#1A7F37', muted: '#6E6E73',
+                            danger: '#D93025', warning: '#B45309'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { -webkit-font-smoothing: antialiased; }
+        body { font-feature-settings: 'kern','liga'; letter-spacing: -0.01em; }
+        .card-ayuda { transition: box-shadow .15s, transform .15s; }
+        .card-ayuda:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.10); transform: translateY(-2px); }
+        .badge-bono { background:#EFF6FF; color:#1D4ED8; }
+        .badge-bonif { background:#F5F3FF; color:#6D28D9; }
+        .badge-subv { background:#ECFDF5; color:#065F46; }
+        .badge-inv { background:#FFFBEB; color:#92400E; }
+        .badge-other { background:#F3F4F6; color:#374151; }
+        select, input { outline: none; }
+        select:focus, input:focus { border-color: #0071E3; box-shadow: 0 0 0 3px rgba(0,113,227,.12); }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="bg-brand-bg text-brand-text" style="font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Inter',system-ui,sans-serif;">
+<!-- GTM noscript -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NMJBFKMB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<!-- NAV -->
+<nav class="bg-white border-b border-brand-border sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <a href="index.html"><img src="logo.svg" style="height:34px;width:auto;" alt="AutonoMetrics"></a>
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="text-sm text-brand-muted hover:text-brand-text transition font-medium">Inicio</a>
+            <a href="app.html" class="text-sm bg-brand-accent hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition">Panel de control →</a>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="bg-white border-b border-brand-border">
+    <div class="max-w-6xl mx-auto px-6 py-14 text-center">
+        <div class="inline-block bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1.5 rounded-full mb-5 uppercase tracking-wider">
+            Actualizado · Julio 2026
+        </div>
+        <h1 class="text-3xl md:text-5xl font-bold tracking-tight text-brand-text leading-tight mb-4">
+            Ayudas y subvenciones<br class="hidden md:block"> para autónomos en España
+        </h1>
+        <p class="text-lg text-brand-muted max-w-2xl mx-auto mb-8">
+            32+ ayudas verificadas de fuentes oficiales. Filtra por tu comunidad autónoma y sector para encontrar las que te corresponden.
+        </p>
+
+        <!-- FILTROS -->
+        <div class="bg-brand-bg border border-brand-border rounded-2xl p-5 max-w-3xl mx-auto shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                <div class="text-left">
+                    <label class="block text-xs font-semibold text-brand-muted mb-1.5 uppercase tracking-wider">Comunidad autónoma</label>
+                    <select id="f-comunidad" class="w-full bg-white border border-brand-border rounded-lg px-3 py-2.5 text-sm text-brand-text transition">
+                        <option value="todas">Todas las comunidades</option>
+                        <option value="Nacional">Nacional (toda España)</option>
+                        <option value="Europea">Fondos europeos</option>
+                        <option value="Murcia">Región de Murcia</option>
+                        <option value="Madrid">Comunidad de Madrid</option>
+                        <option value="Andalucia">Andalucía</option>
+                        <option value="Cataluña">Cataluña</option>
+                        <option value="Valencia">Comunitat Valenciana</option>
+                        <option value="PaisVasco">País Vasco</option>
+                        <option value="Galicia">Galicia</option>
+                    </select>
+                </div>
+                <div class="text-left">
+                    <label class="block text-xs font-semibold text-brand-muted mb-1.5 uppercase tracking-wider">Sector de actividad</label>
+                    <select id="f-sector" class="w-full bg-white border border-brand-border rounded-lg px-3 py-2.5 text-sm text-brand-text transition">
+                        <option value="Cualquiera">Todos los sectores</option>
+                        <option value="Tecnológico">Tecnología / Digital</option>
+                        <option value="Salud">Salud / Sanitario</option>
+                        <option value="Educación">Educación / Formación</option>
+                        <option value="Arte">Arte / Cultura / Creativo</option>
+                        <option value="Servicios">Servicios profesionales</option>
+                        <option value="Comercio">Comercio</option>
+                        <option value="Hostelería">Hostelería / Restauración</option>
+                        <option value="Construcción">Construcción / Reformas</option>
+                        <option value="Transporte">Transporte / Logística</option>
+                        <option value="Agricultura">Agricultura / Ganadería</option>
+                        <option value="Belleza">Belleza / Estética</option>
+                        <option value="Deporte">Deporte / Fitness</option>
+                        <option value="Industria">Industria / Manufactura</option>
+                        <option value="Marketing">Marketing / Comunicación</option>
+                    </select>
+                </div>
+                <div class="text-left">
+                    <label class="block text-xs font-semibold text-brand-muted mb-1.5 uppercase tracking-wider">Antigüedad como autónomo</label>
+                    <select id="f-antiguedad" class="w-full bg-white border border-brand-border rounded-lg px-3 py-2.5 text-sm text-brand-text transition">
+                        <option value="Cualquiera">Cualquier antigüedad</option>
+                        <option value="0">Me doy de alta ahora</option>
+                        <option value="12">Menos de 1 año</option>
+                        <option value="36">Entre 1 y 3 años</option>
+                        <option value="60">Más de 3 años</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="filtrar()" class="w-full bg-brand-accent hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-sm transition">
+                Buscar ayudas →
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- RESULTADOS -->
+<section class="max-w-6xl mx-auto px-6 py-10">
+    <div class="flex items-center justify-between mb-6">
+        <p id="contador" class="text-sm font-semibold text-brand-muted"></p>
+        <span class="text-xs text-brand-muted bg-white border border-brand-border px-3 py-1.5 rounded-full">Fuentes: BOE · SEPE · Consejerías autonómicas</span>
+    </div>
+    <div id="resultados" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    <div id="sin-resultados" class="hidden text-center py-20">
+        <p class="text-4xl mb-4">🔍</p>
+        <p class="text-brand-muted font-medium">No hemos encontrado ayudas para ese perfil exacto.</p>
+        <p class="text-sm text-brand-muted mt-1">Prueba a ampliar los filtros o selecciona "Todas las comunidades".</p>
+    </div>
+</section>
+
+<!-- CTA REGISTRO -->
+<section class="bg-white border-y border-brand-border py-14">
+    <div class="max-w-3xl mx-auto px-6 text-center">
+        <h2 class="text-2xl font-bold text-brand-text mb-3">¿Quieres saber cuánto guardar para Hacienda este trimestre?</h2>
+        <p class="text-brand-muted mb-7">AutonoMetrics calcula en tiempo real tu reserva de IVA e IRPF según tus facturas. Gratis, sin tarjeta.</p>
+        <a href="app.html" class="inline-block bg-brand-accent hover:bg-blue-700 text-white font-semibold px-8 py-3.5 rounded-xl text-sm transition">
+            Abrir panel de control gratis →
+        </a>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="border-t border-brand-border py-8 bg-white">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <img src="logo.svg" style="height:26px;width:auto;" alt="AutonoMetrics">
+        <p class="text-xs text-brand-muted">© 2026 AutonoMetrics · Datos extraídos de fuentes oficiales · Actualización mensual</p>
+        <div class="flex gap-4 text-xs text-brand-muted">
+            <a href="index.html" class="hover:text-brand-text transition">Inicio</a>
+            <a href="app.html" class="hover:text-brand-text transition">Panel de control</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+const ayudasDB = [
+    { id:1, nombre:"Kit Digital — Segmento III (Autónomos sin empleados)", tipo:"Bono Digital", categoria:"Digitalización", comunidad:"Nacional", sector:"Cualquiera", antiguedad:"Cualquiera", descripcion:"Bono NextGen de hasta 2.000 € para digitalizar tu negocio: web, e-commerce, ciberseguridad, ofimática en la nube y CRM. Válido para cualquier sector. Requiere registro previo en Acelera Pyme.", monto:"Hasta 2.000 €", fechaLimite:"Abierta — hasta agotar fondos (Orden TDF/39/2026)", dificultad:"Baja", url:"https://sede.red.gob.es/es/procedimientos/convocatoria-de-ayudas-destinadas-la-digitalizacion-de-empresas-del-segmento-iii" },
+    { id:2, nombre:"Tarifa Plana RETA — 80 €/mes (12 meses)", tipo:"Bonificación de cuota", categoria:"Seguridad Social", comunidad:"Nacional", sector:"Cualquiera", antiguedad:"0", descripcion:"Cuota RETA reducida a 80 €/mes durante los primeros 12 meses. Se solicita en el momento del alta en Import@ss. Compatible con cualquier sector.", monto:"Ahorro de ~2.500 € el primer año", fechaLimite:"Permanente (solicitarla en el alta)", dificultad:"Muy Baja", url:"https://importass.seg-social.es" },
+    { id:3, nombre:"Capitalización del Desempleo — Pago Único", tipo:"Subvención directa", categoria:"Inicio de actividad", comunidad:"Nacional", sector:"Cualquiera", antiguedad:"0", descripcion:"Cobra de una sola vez toda la prestación por desempleo pendiente para invertirla en tu actividad. Solicítala antes de darte de alta en el RETA.", monto:"100 % de la prestación pendiente", fechaLimite:"Permanente (antes de agotar el paro)", dificultad:"Baja", url:"https://www.sepe.es/HomeSepe/en/autonomos/incentivos-ayudas-emprendedores-autonomos.html" },
+    { id:4, nombre:"FUNDAE — Formación Continua para Autónomos", tipo:"Bonificación formación", categoria:"Formación", comunidad:"Nacional", sector:"Cualquiera", antiguedad:"Cualquiera", descripcion:"Bonificación en la cuota de SS para financiar cursos de formación relacionados con tu actividad. Los autónomos sin asalariados disponen de un crédito anual de 500 €.", monto:"Hasta 500 €/año", fechaLimite:"Permanente (año natural)", dificultad:"Muy Baja", url:"https://www.fundae.es/autonomos" },
+    { id:5, nombre:"Reducción IRPF 7 % — Nuevos Autónomos (3 primeros años)", tipo:"Beneficio fiscal", categoria:"Fiscal", comunidad:"Nacional", sector:"Cualquiera", antiguedad:"0", descripcion:"Retención del 7 % en lugar del 15 % habitual en las facturas a empresas. Aplica el año de inicio y los dos siguientes. Mejora la liquidez en los primeros años.", monto:"Ahorro del 8 % por cada factura", fechaLimite:"Permanente (3 primeros años)", dificultad:"Muy Baja", url:"https://www.agenciatributaria.es" },
+    { id:6, nombre:"Plan MOVES III — Vehículos Eléctricos", tipo:"Subvención directa", categoria:"Movilidad Sostenible", comunidad:"Nacional", sector:"Transporte", antiguedad:"Cualquiera", descripcion:"Subvenciones para adquisición de vehículos eléctricos y puntos de recarga. Ideal para autónomos del transporte, reparto y logística.", monto:"Hasta 9.000 €", fechaLimite:"31/12/2026 (por CCAA)", dificultad:"Media", url:"https://www.idae.es/ayudas-y-financiacion/para-movilidad-y-vehiculos/moves-iii-2025" },
+    { id:7, nombre:"Bono Eficiencia Energética — Hostelería y Turismo", tipo:"Subvención directa", categoria:"Eficiencia Energética", comunidad:"Nacional", sector:"Hostelería", antiguedad:"12", descripcion:"Fondos europeos para climatización eficiente, iluminación LED y auditorías energéticas en locales de hostelería.", monto:"Hasta 10.000 €", fechaLimite:"31/10/2026", dificultad:"Alta", url:"https://www.mincotur.gob.es" },
+    { id:8, nombre:"Creación Artística Contemporánea — Ministerio de Cultura 2026", tipo:"Subvención directa", categoria:"Cultura y Arte", comunidad:"Nacional", sector:"Arte", antiguedad:"Cualquiera", descripcion:"Ayudas para proyectos de creación, producción e investigación artística. Hasta 30.000 € por proyecto para artistas con residencia fiscal en España.", monto:"Hasta 30.000 €", fechaLimite:"Convocatoria anual — cultura.gob.es", dificultad:"Alta", url:"https://www.cultura.gob.es" },
+    { id:9, nombre:"Ayudas Fotografía — Ministerio de Cultura 2026", tipo:"Subvención directa", categoria:"Fotografía", comunidad:"Nacional", sector:"Arte", antiguedad:"Cualquiera", descripcion:"Convocatoria para creación, conservación y difusión del patrimonio fotográfico español. Actividades entre junio 2026 y mayo 2027.", monto:"Hasta 15.000 € por proyecto", fechaLimite:"Próxima convocatoria: primavera 2027", dificultad:"Alta", url:"https://www.cultura.gob.es" },
+    { id:10, nombre:"Industrias Culturales y Creativas — Ministerio de Cultura", tipo:"Subvención directa", categoria:"Cultura e Industrias Creativas", comunidad:"Nacional", sector:"Arte", antiguedad:"12", descripcion:"Subvenciones para proyectos empresariales de innovación en el sector cultural: diseño, audiovisual, música, artes escénicas y editorial.", monto:"Hasta 50.000 €", fechaLimite:"Convocatoria 2026 activa — cultura.gob.es", dificultad:"Alta", url:"https://www.cultura.gob.es" },
+    { id:11, nombre:"PAC 2026/2027 — Pagos Directos Agricultura", tipo:"Subvención directa", categoria:"Agricultura y Ganadería", comunidad:"Nacional", sector:"Agricultura", antiguedad:"Cualquiera", descripcion:"Ayudas directas de la Política Agrícola Común (PAC). Incluye pago básico por hectárea y eco-regímenes para prácticas sostenibles.", monto:"Variable según hectáreas", fechaLimite:"Plazo 2027: 1 feb – 30 abr 2027", dificultad:"Media", url:"https://www.mapa.gob.es/es/pac/pagos-directos/" },
+    { id:12, nombre:"Incorporación Jóvenes a la Agricultura — FEADER", tipo:"Subvención directa", categoria:"Agricultura", comunidad:"Nacional", sector:"Agricultura", antiguedad:"0", descripcion:"Ayuda para la primera instalación de jóvenes agricultores (menores de 41 años) que inicien actividad agraria. Financiada con fondos FEADER.", monto:"Hasta 70.000 €", fechaLimite:"Por convocatoria CCAA", dificultad:"Alta", url:"https://www.mapa.gob.es" },
+    { id:13, nombre:"EIC Accelerator — Horizonte Europa (UE)", tipo:"Subvención + Inversión", categoria:"Innovación / I+D+i", comunidad:"Europea", sector:"Tecnológico", antiguedad:"12", descripcion:"Financiación directa de la UE para pymes con proyectos de innovación disruptiva. Hasta 2,5 M€ en subvención + equity opcional del EIC Fund.", monto:"Hasta 2.500.000 € + equity", fechaLimite:"Abierta — 3 cortes anuales", dificultad:"Muy Alta", url:"https://eic.ec.europa.eu/eic-funding-opportunities/eic-accelerator_en" },
+    { id:14, nombre:"Erasmus para Emprendedores — UE", tipo:"Bono movilidad", categoria:"Emprendimiento", comunidad:"Europea", sector:"Cualquiera", antiguedad:"0", descripcion:"Como nuevo emprendedor, trabajas 1-6 meses junto a un empresario consolidado de otro país de la UE. La UE financia los gastos de estancia.", monto:"Entre 530 € y 1.100 €/mes", fechaLimite:"Solicitudes abiertas todo el año", dificultad:"Media", url:"https://www.erasmus-entrepreneurs.eu/index.php?lan=es" },
+    { id:15, nombre:"Cuota Cero Ampliada — SEF Región de Murcia 2026", tipo:"Subvención directa", categoria:"Inicio de actividad", comunidad:"Murcia", sector:"Cualquiera", antiguedad:"0", descripcion:"Reembolso del 100 % de las cuotas RETA durante hasta 24 meses para nuevos autónomos murcianos.", monto:"Hasta 2.920 €", fechaLimite:"15/10/2026", dificultad:"Media", url:"https://sede.carm.es" },
+    { id:16, nombre:"Cheque de Innovación — INFO Murcia 2026", tipo:"Bono para servicios externos", categoria:"Innovación", comunidad:"Murcia", sector:"Tecnológico", antiguedad:"Cualquiera", descripcion:"Subvención del 70 % para contratar servicios externos de innovación: IA, transformación digital, sostenibilidad.", monto:"Hasta 15.000 €", fechaLimite:"Hasta agotar fondos (abierta 2026)", dificultad:"Alta", url:"https://www.institutofomentomurcia.es" },
+    { id:17, nombre:"Apoyo Autónomos Sanitarios — CARM Murcia", tipo:"Subvención directa", categoria:"Emprendimiento sanitario", comunidad:"Murcia", sector:"Salud", antiguedad:"0", descripcion:"Subvención para autónomos de servicios sanitarios que inicien actividad: fisioterapeutas, psicólogos, logopedas, nutricionistas.", monto:"Hasta 5.000 €", fechaLimite:"Convocatoria semestral", dificultad:"Media", url:"https://sede.carm.es" },
+    { id:18, nombre:"Tarifa Cero — Comunidad de Madrid", tipo:"Bonificación de cuota", categoria:"Inicio de actividad", comunidad:"Madrid", sector:"Cualquiera", antiguedad:"0", descripcion:"Reembolso del 100 % de la cuota RETA durante los primeros meses para nuevos autónomos madrileños. Compatible con la Tarifa Plana estatal.", monto:"Hasta 960 € en cuotas reembolsadas", fechaLimite:"Abierta", dificultad:"Baja", url:"https://sede.comunidad.madrid" },
+    { id:19, nombre:"Ayudas Autónomos — Ayuntamiento de Madrid 2026", tipo:"Subvención directa", categoria:"Consolidación", comunidad:"Madrid", sector:"Cualquiera", antiguedad:"12", descripcion:"Convocatoria de 2 millones de euros del Ayuntamiento de Madrid para viabilidad de negocios autónomos consolidados.", monto:"Hasta 10.000 €", fechaLimite:"⚠️ 23/07/2026 — ¡Plazo próximo!", dificultad:"Media", url:"https://www.comunidad.madrid/empleo/ayudas-personas-trabajadoras-autonomas-emprendedoras-entidades-economia-social" },
+    { id:20, nombre:"Modernización del Comercio — Comunidad de Madrid", tipo:"Subvención directa", categoria:"Equipamiento / Reforma", comunidad:"Madrid", sector:"Comercio", antiguedad:"12", descripcion:"Financiación cofinanciada con FEDER para obras de mejora, mobiliario y equipos en locales comerciales minoristas madrileños.", monto:"Hasta 30.000 €", fechaLimite:"31/10/2026", dificultad:"Media", url:"https://tramita.comunidad.madrid" },
+    { id:21, nombre:"Cuota Cero — Junta de Andalucía", tipo:"Bonificación de cuota", categoria:"Inicio de actividad", comunidad:"Andalucia", sector:"Cualquiera", antiguedad:"0", descripcion:"Subvención del 100 % de la cuota RETA para mujeres, jóvenes menores de 35 años y colectivos vulnerables en Andalucía.", monto:"Hasta 1.440 €", fechaLimite:"Abierta", dificultad:"Baja", url:"https://www.juntadeandalucia.es" },
+    { id:22, nombre:"Inicio de Actividad Autónoma — Junta de Andalucía", tipo:"Subvención directa", categoria:"Inicio de actividad", comunidad:"Andalucia", sector:"Cualquiera", antiguedad:"0", descripcion:"Ayuda directa para el inicio de actividad. Convocatoria cerrada — se espera nueva convocatoria en el 2º semestre de 2026.", monto:"Hasta 5.000 €", fechaLimite:"Próxima convocatoria: 2º semestre 2026", dificultad:"Alta", url:"https://www.juntadeandalucia.es" },
+    { id:23, nombre:"Subvenciones Profesionales Sanitarios — Andalucía", tipo:"Subvención directa", categoria:"Salud y Bienestar", comunidad:"Andalucia", sector:"Salud", antiguedad:"0", descripcion:"Ayudas para fisioterapeutas, psicólogos, nutricionistas y otros profesionales sanitarios que inicien actividad como autónomos en Andalucía.", monto:"Hasta 6.000 €", fechaLimite:"Revisión semestral", dificultad:"Media", url:"https://www.juntadeandalucia.es" },
+    { id:24, nombre:"Cupones ACCIÓ a la Innovación 2026 — Cataluña", tipo:"Bono para servicios externos", categoria:"Innovación / IA", comunidad:"Cataluña", sector:"Tecnológico", antiguedad:"Cualquiera", descripcion:"Cupones de la Generalitat para contratar servicios de innovación: IA, sostenibilidad, propiedad industrial y acceso a proyectos europeos.", monto:"Hasta 20.000 €", fechaLimite:"Hasta agotar fondos (abierta 2026)", dificultad:"Media", url:"https://www.accio.gencat.cat" },
+    { id:25, nombre:"Bonificación Alta Autónomo/a — Cataluña", tipo:"Bonificación de cuota", categoria:"Inicio de actividad", comunidad:"Cataluña", sector:"Cualquiera", antiguedad:"0", descripcion:"Complemento autonómico catalán a la tarifa plana estatal: bonificación adicional de cuotas durante el primer año para residentes en Cataluña.", monto:"Hasta 1.200 €", fechaLimite:"Permanente", dificultad:"Baja", url:"https://canalempresa.gencat.cat" },
+    { id:26, nombre:"Ajuts Formació Professional — Cataluña", tipo:"Bono formación", categoria:"Formación", comunidad:"Cataluña", sector:"Educación", antiguedad:"Cualquiera", descripcion:"Ayudas de la Generalitat para autónomos del sector educativo que quieran actualizar competencias u obtener certificaciones.", monto:"Hasta 3.000 €", fechaLimite:"Convocatoria anual (primavera)", dificultad:"Baja", url:"https://canalempresa.gencat.cat" },
+    { id:27, nombre:"IVACE — Bono Digitalización — Comunitat Valenciana", tipo:"Bono Digital", categoria:"Digitalización", comunidad:"Valencia", sector:"Cualquiera", antiguedad:"Cualquiera", descripcion:"El Institut Valencià de Competitivitat Empresarial subvenciona hasta el 60 % de los costes de digitalización: software, ciberseguridad y presencia online.", monto:"Hasta 5.000 €", fechaLimite:"Convocatoria 2026 activa", dificultad:"Media", url:"https://www.ivace.es" },
+    { id:28, nombre:"GVA Labora — Fomento Empleo Autónomo Valencia", tipo:"Subvención directa", categoria:"Inicio de actividad", comunidad:"Valencia", sector:"Cualquiera", antiguedad:"0", descripcion:"La Generalitat Valenciana subvenciona el inicio de actividad con cuantías diferenciales para mujeres, jóvenes y desempleados de larga duración.", monto:"Hasta 8.000 €", fechaLimite:"Convocatoria semestral", dificultad:"Media", url:"https://www.labora.gva.es" },
+    { id:29, nombre:"Bono Emprendimiento Digital — Lanbide Euskadi", tipo:"Bono Digital", categoria:"Digitalización", comunidad:"PaisVasco", sector:"Tecnológico", antiguedad:"0", descripcion:"Lanbide subvenciona hasta el 80 % de herramientas, formación tecnológica y asesoramiento para nuevos autónomos digitales en Euskadi.", monto:"Hasta 6.000 €", fechaLimite:"Convocatoria trimestral", dificultad:"Media", url:"https://www.lanbide.euskadi.eus" },
+    { id:30, nombre:"Programa Kudeatu — Autónomo Vasco", tipo:"Subvención directa", categoria:"Inicio / Consolidación", comunidad:"PaisVasco", sector:"Cualquiera", antiguedad:"Cualquiera", descripcion:"Programa integral de apoyo al autónomo vasco: subvenciones de inicio, bonificaciones en formación y asesoramiento de gestión empresarial.", monto:"Hasta 5.000 € + bonificaciones", fechaLimite:"Abierta (revisión semestral)", dificultad:"Baja", url:"https://www.spri.eus" },
+    { id:31, nombre:"Programa PEMES — Xunta de Galicia", tipo:"Subvención directa", categoria:"Emprendimiento y Consolidación", comunidad:"Galicia", sector:"Cualquiera", antiguedad:"Cualquiera", descripcion:"La Xunta apoya a autónomos con subvenciones para inversión en activos productivos, digitalización y creación de empleo.", monto:"Hasta 12.000 €", fechaLimite:"Convocatoria 2026 activa", dificultad:"Media", url:"https://www.xunta.gal/emprego" },
+    { id:32, nombre:"IG290 — Incentivos Empleo Autónomo — Galicia", tipo:"Subvención directa", categoria:"Inicio de actividad", comunidad:"Galicia", sector:"Cualquiera", antiguedad:"0", descripcion:"Ayudas de la Xunta para nuevos autónomos gallegos: bonificación de cuota RETA, subvención por formación y ayuda de conciliación.", monto:"Hasta 3.000 € + bonificación cuota RETA", fechaLimite:"Plazo abierto", dificultad:"Baja", url:"https://www.xunta.gal" },
+];
+
+function getBadgeClass(tipo) {
+    if (!tipo) return 'badge-other';
+    const t = tipo.toLowerCase();
+    if (t.includes('bono') || t.includes('cupón') || t.includes('digital')) return 'badge-bono';
+    if (t.includes('bonificación') || t.includes('bonificacion')) return 'badge-bonif';
+    if (t.includes('subvención') || t.includes('subvencion')) return 'badge-subv';
+    if (t.includes('inversión') || t.includes('fiscal') || t.includes('beneficio')) return 'badge-inv';
+    return 'badge-other';
+}
+
+function filtrar() {
+    const comunidad = document.getElementById('f-comunidad').value;
+    const sector = document.getElementById('f-sector').value;
+    const antiguedad = document.getElementById('f-antiguedad').value;
+    const container = document.getElementById('resultados');
+    const sinResultados = document.getElementById('sin-resultados');
+    container.innerHTML = '';
+
+    const resultado = ayudasDB.filter(a => {
+        const comunidadOk = comunidad === 'todas' || a.comunidad === comunidad || a.comunidad === 'Nacional' || a.comunidad === 'Europea';
+        const sectorOk = sector === 'Cualquiera' || a.sector === 'Cualquiera' || a.sector === sector;
+        const antiguedadOk = antiguedad === 'Cualquiera' || a.antiguedad === 'Cualquiera' || a.antiguedad === antiguedad;
+        return comunidadOk && sectorOk && antiguedadOk;
+    });
+
+    document.getElementById('contador').textContent = `${resultado.length} ayuda${resultado.length !== 1 ? 's' : ''} encontrada${resultado.length !== 1 ? 's' : ''}`;
+
+    if (resultado.length === 0) {
+        sinResultados.classList.remove('hidden');
+        return;
+    }
+    sinResultados.classList.add('hidden');
+
+    resultado.forEach(a => {
+        const urgente = a.fechaLimite.includes('⚠️');
+        const badgeClass = getBadgeClass(a.tipo);
+        const card = document.createElement('article');
+        card.className = 'card-ayuda bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col';
+        card.innerHTML = `
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold text-brand-muted bg-gray-100 px-2 py-0.5 rounded uppercase tracking-wider">${a.comunidad} · ${a.categoria}</span>
+                    <span class="${badgeClass} text-[10px] font-semibold px-2 py-0.5 rounded-full w-fit">${a.tipo}</span>
+                </div>
+                <span class="text-xs font-bold px-2 py-1 rounded-lg ${a.dificultad === 'Muy Baja' || a.dificultad === 'Baja' ? 'bg-emerald-50 text-emerald-700' : a.dificultad === 'Media' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'} shrink-0 ml-2">${a.dificultad}</span>
+            </div>
+            <h2 class="text-sm font-bold text-brand-text leading-snug mb-2">${a.nombre}</h2>
+            <p class="text-xs text-brand-muted leading-relaxed mb-4 flex-1">${a.descripcion}</p>
+            <div class="border-t border-gray-100 pt-3 space-y-2">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-brand-muted">Importe máximo</span>
+                    <span class="text-sm font-bold text-emerald-700">${a.monto}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-brand-muted">Plazo</span>
+                    <span class="text-xs font-semibold ${urgente ? 'text-red-600' : 'text-brand-warning'}">${a.fechaLimite}</span>
+                </div>
+            </div>
+            <a href="${a.url}" target="_blank" rel="noopener noreferrer"
+               class="mt-4 block w-full text-center text-xs bg-brand-accent hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition">
+                Ver convocatoria oficial ↗
+            </a>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Cargar todas al inicio
+filtrar();
+
+// Filtrar en tiempo real al cambiar selectores
+['f-comunidad','f-sector','f-antiguedad'].forEach(id => {
+    document.getElementById(id).addEventListener('change', filtrar);
+});
+</script>
+</body>
+</html>
