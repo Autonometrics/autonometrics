@@ -66,9 +66,6 @@
 <nav class="bg-white border-b border-brand-border sticky top-0 z-50">
     <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <img src="logo.svg" style="height:34px;width:auto;" alt="AutonoMetrics">
-        <div class="flex items-center gap-3">
-            <a href="app.html" class="text-sm bg-brand-accent hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition">Panel de control →</a>
-        </div>
     </div>
 </nav>
 
@@ -155,25 +152,12 @@
     </div>
 </section>
 
-<!-- CTA REGISTRO -->
-<section class="bg-white border-y border-brand-border py-14">
-    <div class="max-w-3xl mx-auto px-6 text-center">
-        <h2 class="text-2xl font-bold text-brand-text mb-3">¿Quieres saber cuánto guardar para Hacienda este trimestre?</h2>
-        <p class="text-brand-muted mb-7">AutonoMetrics calcula en tiempo real tu reserva de IVA e IRPF según tus facturas. Gratis, sin tarjeta.</p>
-        <a href="app.html" class="inline-block bg-brand-accent hover:bg-blue-700 text-white font-semibold px-8 py-3.5 rounded-xl text-sm transition">
-            Abrir panel de control gratis →
-        </a>
-    </div>
-</section>
 
 <!-- FOOTER -->
 <footer class="border-t border-brand-border py-8 bg-white">
     <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <img src="logo.svg" style="height:26px;width:auto;" alt="AutonoMetrics">
         <p class="text-xs text-brand-muted">© 2026 AutonoMetrics · Datos extraídos de fuentes oficiales · Actualización mensual</p>
-        <div class="flex gap-4 text-xs text-brand-muted">
-            <a href="app.html" class="hover:text-brand-text transition">Panel de control</a>
-        </div>
     </div>
 </footer>
 
@@ -213,6 +197,10 @@ const ayudasDB = [
     { id:32, nombre:"IG290 — Incentivos Empleo Autónomo — Galicia", tipo:"Subvención directa", categoria:"Inicio de actividad", comunidad:"Galicia", sector:"Cualquiera", antiguedad:"0", descripcion:"Ayudas de la Xunta para nuevos autónomos gallegos: bonificación de cuota RETA, subvención por formación y ayuda de conciliación.", monto:"Hasta 3.000 € + bonificación cuota RETA", fechaLimite:"Plazo abierto", dificultad:"Baja", url:"https://www.xunta.gal" },
 ];
 
+function getDificultadLabel(d) {
+    const map = { 'Muy Baja': 'Trámite muy fácil', 'Baja': 'Trámite fácil', 'Media': 'Trámite medio', 'Alta': 'Trámite complejo', 'Muy Alta': 'Trámite muy complejo' };
+    return map[d] || d;
+}
 function getBadgeClass(tipo) {
     if (!tipo) return 'badge-other';
     const t = tipo.toLowerCase();
@@ -257,7 +245,7 @@ function filtrar() {
                     <span class="text-[10px] font-bold text-brand-muted bg-gray-100 px-2 py-0.5 rounded uppercase tracking-wider">${a.comunidad} · ${a.categoria}</span>
                     <span class="${badgeClass} text-[10px] font-semibold px-2 py-0.5 rounded-full w-fit">${a.tipo}</span>
                 </div>
-                <span class="text-xs font-bold px-2 py-1 rounded-lg ${a.dificultad === 'Muy Baja' || a.dificultad === 'Baja' ? 'bg-emerald-50 text-emerald-700' : a.dificultad === 'Media' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'} shrink-0 ml-2">${a.dificultad}</span>
+                <span class="text-xs font-bold px-2 py-1 rounded-lg ${a.dificultad === 'Muy Baja' || a.dificultad === 'Baja' ? 'bg-emerald-50 text-emerald-700' : a.dificultad === 'Media' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'} shrink-0 ml-2">${getDificultadLabel(a.dificultad)}</span>
             </div>
             <h2 class="text-sm font-bold text-brand-text leading-snug mb-2">${a.nombre}</h2>
             <p class="text-xs text-brand-muted leading-relaxed mb-4 flex-1">${a.descripcion}</p>
