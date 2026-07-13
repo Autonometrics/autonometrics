@@ -153,6 +153,29 @@
 </section>
 
 
+<!-- ALERTA EMAIL -->
+<section class="bg-white border-t border-brand-border py-12">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+        <div class="text-2xl mb-3">🔔</div>
+        <h2 class="text-xl font-bold text-brand-text mb-2">Recibe alertas cuando abran nuevas ayudas</h2>
+        <p id="alerta-desc" class="text-sm text-brand-muted mb-6">Te avisamos por email cuando salga una nueva convocatoria que encaje con tu perfil.</p>
+        <form id="form-alerta" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onsubmit="suscribirse(event)">
+            <input
+                id="alerta-email"
+                type="email"
+                placeholder="tu@email.com"
+                required
+                class="flex-1 bg-brand-bg border border-brand-border rounded-xl px-4 py-3 text-sm text-brand-text placeholder:text-brand-muted"
+            >
+            <button type="submit" class="bg-brand-accent hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl text-sm transition whitespace-nowrap">
+                Activar alerta
+            </button>
+        </form>
+        <p id="alerta-msg" class="hidden mt-4 text-sm font-semibold text-emerald-700"></p>
+        <p class="text-xs text-brand-muted mt-4">Sin spam. Un email semanal como máximo. Baja en un clic.</p>
+    </div>
+</section>
+
 <!-- FOOTER -->
 <footer class="border-t border-brand-border py-8 bg-white">
     <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -277,6 +300,7 @@ function filtrar() {
     });
 
     actualizarSEO(comunidad, sector, antiguedad, resultado.length);
+    actualizarDescAlerta(comunidad, sector);
     document.getElementById('contador').textContent = `${resultado.length} ayuda${resultado.length !== 1 ? 's' : ''} encontrada${resultado.length !== 1 ? 's' : ''}`;
 
     if (resultado.length === 0) {
@@ -326,6 +350,55 @@ function filtrar() {
         `;
         container.appendChild(card);
     });
+}
+
+// ── Suscripción alertas ───────────────────────────────────────────────────────
+async function suscribirse(e) {
+    e.preventDefault();
+    const email     = document.getElementById('alerta-email').value.trim();
+    const comunidad = document.getElementById('f-comunidad').value;
+    const sector    = document.getElementById('f-sector').value;
+    const antiguedad= document.getElementById('f-antiguedad').value;
+    const btn       = e.target.querySelector('button[type="submit"]');
+    const msg       = document.getElementById('alerta-msg');
+
+    btn.disabled    = true;
+    btn.textContent = 'Guardando…';
+
+    try {
+        const r = await fetch('/api/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, comunidad, sector, antiguedad })
+        });
+        const data = await r.json();
+        if (r.ok) {
+            document.getElementById('form-alerta').classList.add('hidden');
+            msg.textContent = '✓ ¡Listo! Te avisaremos cuando abran nuevas ayudas para tu perfil.';
+            msg.classList.remove('hidden');
+        } else {
+            btn.disabled    = false;
+            btn.textContent = 'Activar alerta';
+            msg.textContent = data.error || 'Error al suscribirte. Inténtalo de nuevo.';
+            msg.className   = 'mt-4 text-sm font-semibold text-red-600';
+            msg.classList.remove('hidden');
+        }
+    } catch {
+        btn.disabled    = false;
+        btn.textContent = 'Activar alerta';
+        msg.textContent = 'Error de conexión. Inténtalo de nuevo.';
+        msg.className   = 'mt-4 text-sm font-semibold text-red-600';
+        msg.classList.remove('hidden');
+    }
+}
+
+// Actualizar texto de la sección de alertas según filtros activos
+function actualizarDescAlerta(comunidad, sector) {
+    const desc = document.getElementById('alerta-desc');
+    if (!desc) return;
+    const com = (COMUNIDAD_LABEL[comunidad] && comunidad !== 'todas') ? ` en ${COMUNIDAD_LABEL[comunidad]}` : '';
+    const sec = (SECTOR_LABEL[sector] && sector !== 'Cualquiera') ? ` de ${SECTOR_LABEL[sector]}` : '';
+    desc.textContent = `Te avisamos cuando salga una nueva ayuda para autónomos${sec}${com}.`;
 }
 
 // Leer parámetros de URL al cargar la página
