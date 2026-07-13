@@ -3,7 +3,7 @@ const { createClient } = require('@supabase/supabase-js');
 
 const sb = createClient(
     process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY
+    process.env.SUPABASE_SERVICE_KEY   // service key para saltarse RLS en servidor
 );
 
 module.exports = async (req, res) => {
