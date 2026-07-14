@@ -124,7 +124,7 @@ module.exports = async (req, res) => {
 
         try {
             await resend.emails.send({
-                from:    'AutonoMetrics <alertas@autonometrics.es>',
+                from:    'AutonoMetrics <onboarding@resend.dev>',
                 to:      s.email,
                 subject: `${matches.length} ayuda${matches.length !== 1 ? 's' : ''} para autónomos que te pueden interesar`,
                 html:    buildEmailHTML(matches, s)
