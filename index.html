@@ -26,6 +26,7 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-NMJBFKMB');</script>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -220,6 +221,13 @@ const ayudasDB = [
     { id:32, nombre:"IG290 — Incentivos Empleo Autónomo — Galicia", tipo:"Subvención directa", categoria:"Inicio de actividad", comunidad:"Galicia", sector:"Cualquiera", antiguedad:"0", descripcion:"Ayudas de la Xunta para nuevos autónomos gallegos: bonificación de cuota RETA, subvención por formación y ayuda de conciliación.", monto:"Hasta 3.000 € + bonificación cuota RETA", fechaLimite:"Plazo abierto", dificultad:"Baja", url:"https://www.xunta.gal", documentacion:["DNI/NIE en vigor","Alta en el RETA (reciente)","Certificado de empadronamiento en Galicia","Solicitud modelo IG290 (sede.xunta.gal)","Certificado de estar al corriente con Hacienda y SS"] },
 ];
 
+// ── Supabase cliente (anon key — solo escritura pública con RLS desactivado) ──
+const { createClient } = supabase;
+const sb = createClient(
+    'https://jgaehoxzxexecjlmferb.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnYWVob3h6eGV4ZWNqbG1mZXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4OTAzMDEsImV4cCI6MjA5NzQ2NjMwMX0.J2e_UPYu72GWBTEe6L8CdfRuPs78k6r9RaLuKDfhVYY'
+);
+
 // ── SEO dinámico por URL ──────────────────────────────────────────────────────
 const COMUNIDAD_LABEL = {
     'todas':'España','Nacional':'toda España','Europea':'Europa',
@@ -352,42 +360,34 @@ function filtrar() {
     });
 }
 
-// ── Suscripción alertas ───────────────────────────────────────────────────────
+// ── Suscripción alertas (directo a Supabase) ─────────────────────────────────
 async function suscribirse(e) {
     e.preventDefault();
-    const email     = document.getElementById('alerta-email').value.trim();
-    const comunidad = document.getElementById('f-comunidad').value;
-    const sector    = document.getElementById('f-sector').value;
-    const antiguedad= document.getElementById('f-antiguedad').value;
-    const btn       = e.target.querySelector('button[type="submit"]');
-    const msg       = document.getElementById('alerta-msg');
+    const email      = document.getElementById('alerta-email').value.trim();
+    const comunidad  = document.getElementById('f-comunidad').value;
+    const sector     = document.getElementById('f-sector').value;
+    const antiguedad = document.getElementById('f-antiguedad').value;
+    const btn        = e.target.querySelector('button[type="submit"]');
+    const msg        = document.getElementById('alerta-msg');
 
     btn.disabled    = true;
     btn.textContent = 'Guardando…';
 
-    try {
-        const r = await fetch('/api/subscribe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, comunidad, sector, antiguedad })
-        });
-        const data = await r.json();
-        if (r.ok) {
-            document.getElementById('form-alerta').classList.add('hidden');
-            msg.textContent = '✓ ¡Listo! Te avisaremos cuando abran nuevas ayudas para tu perfil.';
-            msg.classList.remove('hidden');
-        } else {
-            btn.disabled    = false;
-            btn.textContent = 'Activar alerta';
-            msg.textContent = data.error || 'Error al suscribirte. Inténtalo de nuevo.';
-            msg.className   = 'mt-4 text-sm font-semibold text-red-600';
-            msg.classList.remove('hidden');
-        }
-    } catch {
+    const { error } = await sb.from('suscriptores').upsert(
+        { email: email.toLowerCase(), comunidad, sector, antiguedad, activo: true },
+        { onConflict: 'email' }
+    );
+
+    if (error) {
         btn.disabled    = false;
         btn.textContent = 'Activar alerta';
-        msg.textContent = 'Error de conexión. Inténtalo de nuevo.';
+        msg.textContent = 'Error al suscribirte. Inténtalo de nuevo.';
         msg.className   = 'mt-4 text-sm font-semibold text-red-600';
+        msg.classList.remove('hidden');
+    } else {
+        document.getElementById('form-alerta').classList.add('hidden');
+        msg.textContent = '✓ ¡Listo! Te avisaremos cuando abran nuevas ayudas para tu perfil.';
+        msg.className   = 'mt-4 text-sm font-semibold text-emerald-700';
         msg.classList.remove('hidden');
     }
 }
